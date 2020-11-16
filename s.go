@@ -1,0 +1,88 @@
+package main
+
+import (
+	"log"
+	"net"
+	"os"
+
+	"github.com/mangenotwork/csdemo/lib/global"
+	pk "github.com/mangenotwork/csdemo/lib/packet"
+	"github.com/mangenotwork/csdemo/lib/protocol"
+	"github.com/mangenotwork/csdemo/master/http"
+	"github.com/mangenotwork/csdemo/master/tcp"
+	"github.com/mangenotwork/csdemo/structs"
+)
+
+func main() {
+	//启动Master Http服务
+	go http.Httpserver()
+
+	//运行Master
+	RunMasterTCP()
+}
+
+//运行Master
+func RunMasterTCP() {
+	//类似于初始化套接字，绑定端口
+	hawkServer, err := net.ResolveTCPAddr("tcp", global.MasterHost)
+	checkErr(err)
+
+	//侦听
+	listen, err := net.ListenTCP("tcp", hawkServer)
+	checkErr(err)
+
+	//关闭
+	defer listen.Close()
+	tcpServer := &structs.TcpServer{
+		Listener:   listen,
+		HawkServer: hawkServer,
+	}
+	log.Println("start Master TCP server successful.")
+
+	//接收请求
+	for {
+		//来自客户端的连接
+		conn, err := tcpServer.Listener.Accept()
+		checkErr(err)
+		log.Println("accept tcp client ", conn.RemoteAddr().String(), conn)
+
+		//创建新的客户端实例
+		newCli := &structs.Cli{
+			Conn:  conn,
+			Rdata: make(chan interface{}),
+		}
+
+		//新客户端连接写入Slves
+		global.AddSlve(conn.RemoteAddr().String(), newCli)
+		//打印当前所有Slve
+		global.PrintSlves()
+
+		//客户端连接成功给他颁发一个名称
+		packet := structs.Packet{
+			PacketType:    pk.SET_SLVE_TOKEN_PACKET,
+			PacketContent: []byte("客户端连接成功给你颁发一个名称"),
+		}
+		tcp.SendData(conn, packet)
+
+		// 每次建立一个连接就放到单独的协程内做处理
+		go Handle(newCli)
+	}
+}
+
+func Handle(conn *structs.Cli) {
+	// 连接断开的处理
+	defer delete(global.Slves, conn.Conn.RemoteAddr().String())
+	defer conn.Conn.Close()
+
+	//Master接收的具体业务
+	protocol.DePackSendDataMater(conn, tcp.MasterTcpFunc)
+
+}
+
+//处理错误
+func checkErr(err error) {
+	if err != nil {
+		log.Println(err)
+		os.Exit(-1)
+	}
+}
