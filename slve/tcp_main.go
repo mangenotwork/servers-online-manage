@@ -89,7 +89,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 
 			//创建文件
 			//配置读取文件夹
-			f, err := os.Create(filePacket.FileName)
+			f, err := os.Create(global.SlveSpace + filePacket.FileName)
 			if err != nil {
 				log.Println(err)
 				return

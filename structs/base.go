@@ -74,4 +74,5 @@ type MasterConf struct {
 type SlveConf struct {
 	Version    string `json:"version"`
 	MasterHost string `json:"master_host"`
+	SlveSpace  string `json:"slve_space"`
 }

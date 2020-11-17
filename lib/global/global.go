@@ -37,6 +37,9 @@ var (
 
 	//重连chan
 	RConn = make(chan bool)
+
+	//客户端创建的空间
+	SlveSpace = "/home/ManGe_Slve/"
 )
 
 //添加Slve

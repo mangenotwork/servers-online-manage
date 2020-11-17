@@ -183,4 +183,9 @@ func InitConf() {
 	//给全局变量赋值
 	global.SlveVersion = slveconf.Version
 	global.MasterHost = slveconf.MasterHost
+	global.SlveSpace = slveconf.SlveSpace
+
+	//检查空间
+	os.Mkdir(global.SlveSpace, os.ModePerm)
+
 }
