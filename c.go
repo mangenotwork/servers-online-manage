@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"math/rand"
 	"net"
 	"os"
@@ -15,24 +15,27 @@ import (
 	"github.com/mangenotwork/csdemo/structs"
 )
 
-//默认的服务器地址`
-var (
-	SlveVersion = "0.1"
-)
-
 func main() {
+
+	//初始话配置
+	InitConf()
+
+	//用于重连
+Reconnection:
+
 	//拿到服务器地址信息
 	hawkServer, err := net.ResolveTCPAddr("tcp", global.MasterHost)
 	if err != nil {
-		fmt.Printf("hawk server [%s] resolve error: [%s]", global.MasterHost, err.Error())
+		log.Printf("hawk server [%s] resolve error: [%s]", global.MasterHost, err.Error())
 		os.Exit(1)
 	}
 
 	//连接服务器
 	connection, err := net.DialTCP("tcp", nil, hawkServer)
 	if err != nil {
-		fmt.Printf("connect to hawk server error: [%s]", err.Error())
-		os.Exit(1)
+		log.Printf("connect to hawk server error: [%s]", err.Error())
+		time.Sleep(1 * time.Second)
+		goto Reconnection
 	}
 
 	//创建客户端实例
@@ -46,17 +49,17 @@ func main() {
 	go protocol.DePackSendData(client.Connection, slve.SlveTcpFunc)
 
 	//发送心跳的goroutine
-	// go func() {
-	// 	heartBeatTick := time.Tick(1 * time.Second)
-	// 	for {
-	// 		select {
-	// 		case <-heartBeatTick:
-	// 			client.sendHeartPacket()
-	// 		case <-client.stopChan:
-	// 			return
-	// 		}
-	// 	}
-	// }()
+	go func() {
+		heartBeatTick := time.Tick(3 * time.Second)
+		for {
+			select {
+			case <-heartBeatTick:
+				SendHeartPacket(client)
+			case <-client.StopChan:
+				return
+			}
+		}
+	}()
 
 	// //测试用的，开300个goroutine每秒发送一个包
 	// for i := 0; i < 300; i++ {
@@ -87,6 +90,14 @@ func main() {
 	// 	}
 	// }()
 
+	for {
+		select {
+		case a := <-global.RConn:
+			log.Println("global.RConn = ", a)
+			goto Reconnection
+		}
+	}
+
 	//等待退出
 	<-client.StopChan
 }
@@ -101,7 +112,7 @@ func sendReportPacket(client *structs.TcpClient) {
 	}
 	packetBytes, err := json.Marshal(reportPacket)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	//这一次其实可以不需要，在封包的地方把类型和数据传进去即可
 	packet := structs.Packet{
@@ -110,15 +121,15 @@ func sendReportPacket(client *structs.TcpClient) {
 	}
 	sendBytes, err := json.Marshal(packet)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	//发送
 	client.Connection.Write(protocol.EnPackSendData(sendBytes))
-	//fmt.Println("Send metric data success!")
+	//log.Println("Send metric data success!")
 }
 
 //发送心跳包，与发送数据包一样
-func sendHeartPacket(client *structs.TcpClient) {
+func SendHeartPacket(client *structs.TcpClient) {
 	heartPacket := structs.HeartPacket{
 		Version:   global.SlveVersion,
 		SlveId:    global.SlveToken,
@@ -131,7 +142,7 @@ func sendHeartPacket(client *structs.TcpClient) {
 	}
 	packetBytes, err := json.Marshal(heartPacket)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	packet := structs.Packet{
 		PacketType:    pk.HEART_BEAT_PACKET,
@@ -139,7 +150,7 @@ func sendHeartPacket(client *structs.TcpClient) {
 	}
 	sendBytes, err := json.Marshal(packet)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	client.Connection.Write(protocol.EnPackSendData(sendBytes))
 }
@@ -152,4 +163,24 @@ func getRandString() string {
 		strBytes[i] = byte(rand.Intn(26) + 97)
 	}
 	return string(strBytes)
+}
+
+//初始化配置
+func InitConf() {
+	//读取配置文件
+	file, _ := os.Open("conf/slve_conf.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	slveconf := structs.SlveConf{}
+	err := decoder.Decode(&slveconf)
+	if err != nil {
+		log.Println("Error:", err)
+		log.Println("读取配置文件 conf/slve_conf.json 失败 ！")
+		os.Exit(1)
+	}
+	log.Println("slveconf = ", &slveconf)
+
+	//给全局变量赋值
+	global.SlveVersion = slveconf.Version
+	global.MasterHost = slveconf.MasterHost
 }

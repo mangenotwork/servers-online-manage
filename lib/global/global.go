@@ -34,6 +34,9 @@ var (
 
 	//客户端文件传输是否接收完成
 	FileEnd bool = false
+
+	//重连chan
+	RConn = make(chan bool)
 )
 
 //添加Slve
@@ -49,5 +52,4 @@ func PrintSlves() {
 	SlvesLock.RLock()
 	defer SlvesLock.RUnlock()
 	log.Println(Slves)
-
 }

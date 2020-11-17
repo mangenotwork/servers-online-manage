@@ -9,6 +9,7 @@ import (
 
 	"net"
 
+	"github.com/mangenotwork/csdemo/lib/global"
 	"github.com/mangenotwork/csdemo/structs"
 )
 
@@ -155,7 +156,7 @@ func DePackSendData(conn net.Conn, f func(net.Conn, *structs.Packet)) {
 				fmt.Printf(" %s is close!\n", conn.RemoteAddr().String())
 			}
 			//在这里直接退出goroutine，关闭由defer操作完成
-
+			global.RConn <- false
 			return
 		}
 

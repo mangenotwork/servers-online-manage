@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net"
 	"os"
@@ -14,6 +15,10 @@ import (
 )
 
 func main() {
+
+	//初始话配置文件
+	InitConf()
+
 	//启动Master Http服务
 	go http.Httpserver()
 
@@ -33,6 +38,7 @@ func RunMasterTCP() {
 
 	//关闭
 	defer listen.Close()
+
 	tcpServer := &structs.TcpServer{
 		Listener:   listen,
 		HawkServer: hawkServer,
@@ -85,4 +91,22 @@ func checkErr(err error) {
 		log.Println(err)
 		os.Exit(-1)
 	}
+}
+
+//初始化配置
+func InitConf() {
+	//读取配置文件
+	file, _ := os.Open("conf/master_conf.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	masterconf := structs.MasterConf{}
+	err := decoder.Decode(&masterconf)
+	if err != nil {
+		log.Println("Error:", err)
+	}
+	log.Println("masterconf = ", &masterconf)
+
+	//给全局变量赋值
+	global.Version = masterconf.Version
+	global.MasterHost = masterconf.MasterHost
 }

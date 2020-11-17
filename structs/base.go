@@ -63,3 +63,15 @@ type Cli struct {
 	Conn  net.Conn
 	Rdata chan interface{}
 }
+
+//Master conf
+type MasterConf struct {
+	Version    string `json:"version"`
+	MasterHost string `json:"master_host"`
+}
+
+//Slve conf
+type SlveConf struct {
+	Version    string `json:"version"`
+	MasterHost string `json:"master_host"`
+}
