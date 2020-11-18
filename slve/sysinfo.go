@@ -6,8 +6,12 @@ import (
 	"log"
 	"net"
 	"os"
+	"regexp"
 	"runtime"
+	"strconv"
+	"strings"
 
+	"github.com/mangenotwork/csdemo/lib/cmd"
 	"github.com/mangenotwork/csdemo/structs"
 )
 
@@ -56,6 +60,86 @@ func GetHostInfo() *structs.HostInfo {
 		SysArch:       runtime.GOARCH,
 		CpuCoreNumber: fmt.Sprintf("cpu 核心数: %d", runtime.GOMAXPROCS(0)),
 	}
+}
+
+//获取system-uuid
+func GetSystemUUID() string {
+	return cmd.LinuxSendCommand("sudo dmidecode -s system-uuid")
+}
+
+// 从 /proc/cpuinfo 获取cpu相关信息
+func ProcCpuinfo() (cpuinfos []map[string]string) {
+
+	cpuinfos = make([]map[string]string, 0)
+
+	rStr := cmd.LinuxSendCommand("cat /proc/cpuinfo")
+	if rStr == "" {
+		return
+	}
+
+	rStrList := strings.Split(rStr, "processor")
+	for _, v := range rStrList {
+		v = "processor" + v
+		vList := strings.Split(v, "\n")
+		data := make(map[string]string, 0)
+		for _, i := range vList {
+			d := strings.Split(i, ":")
+			if len(d) == 2 {
+				key := DeletePreAndSufSpace(d[0])
+				vlue := DeletePreAndSufSpace(d[1])
+				data[key] = vlue
+			}
+		}
+		cpuinfos = append(cpuinfos, data)
+	}
+	return
+}
+
+// 从 /proc/meminfo 中读取内存
+func ProcMeminfo() (mem *structs.ProcMemInfo) {
+	rStr := cmd.LinuxSendCommand("cat /proc/meminfo")
+	log.Println(rStr)
+
+	data := make(map[string]string, 0)
+	rStrList := strings.Split(rStr, "\n")
+	for _, v := range rStrList {
+		d := strings.Split(v, ":")
+		if len(d) == 2 {
+			key := DeletePreAndSufSpace(d[0])
+			vlue := DeletePreAndSufSpace(d[1])
+			data[key] = vlue
+		}
+	}
+	log.Println(data)
+
+	//MemTotal: 所有可用RAM大小 （即物理内存减去一些预留位和内核的二进制代码大小）
+	memTotal := Str2Int64(data["MemTotal"])
+
+	//MemFree: LowFree与HighFree的总和，被系统留着未使用的内存
+	memFree := Str2Int64(data["MemFree"])
+
+	memUsed := memTotal - memFree
+
+	//Buffers: 用来给文件做缓冲大小
+	buffers := Str2Int64(data["Buffers"])
+
+	//Cached: 被高速缓冲存储器（cache memory）用的内存的大小（等于diskcache minus SwapCache ）.
+	cached := Str2Int64(data["Cached"])
+
+	log.Println(memTotal, memUsed, memFree, buffers, cached)
+	log.Println("Used = ", memTotal-memFree)
+	log.Println("-buffers/cache反映的是被程序实实在在吃掉的内存 : ", memUsed-buffers-cached)
+	log.Println("+buffers/cache反映的是可以挪用的内存总数 : ", memFree+buffers+cached)
+
+	mem = &structs.ProcMemInfo{
+		MemTotal:   memTotal,
+		MemUsed:    memUsed - buffers - cached,
+		MemFree:    memFree + buffers + cached,
+		MemBuffers: buffers,
+		MemCached:  cached,
+	}
+
+	return
 }
 
 /*
@@ -136,3 +220,53 @@ sudo dmidecode -s system-uuid
 
 
 */
+
+//删除字符串前后两端的所有空格
+func DeletePreAndSufSpace(str string) string {
+	strList := []byte(str)
+	spaceCount, count := 0, len(strList)
+	for i := 0; i <= len(strList)-1; i++ {
+		if strList[i] == 32 {
+			spaceCount++
+		} else {
+			break
+		}
+	}
+
+	strList = strList[spaceCount:]
+	spaceCount, count = 0, len(strList)
+	for i := count - 1; i >= 0; i-- {
+		if strList[i] == 32 {
+			spaceCount++
+		} else {
+			break
+		}
+	}
+
+	return string(strList[:count-spaceCount])
+}
+
+//字符串转flot64
+func Str2Flot64(s string) float64 {
+	floatnum, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		floatnum = 0
+	}
+	return floatnum
+}
+
+//字符串转int64
+func Str2Int64(s string) int64 {
+	reg := regexp.MustCompile(`[0-9]+`)
+	sList := reg.FindAllString(s, -1)
+	log.Println(sList)
+	if len(sList) == 0 {
+		return 0
+	}
+
+	int64num, err := strconv.ParseInt(sList[0], 10, 64)
+	if err != nil {
+		return 0
+	}
+	return int64num
+}

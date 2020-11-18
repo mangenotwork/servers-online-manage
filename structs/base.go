@@ -76,3 +76,12 @@ type SlveConf struct {
 	MasterHost string `json:"master_host"`
 	SlveSpace  string `json:"slve_space"`
 }
+
+//从 proc/meminfo 获取内存信息
+type ProcMemInfo struct {
+	MemTotal   int64 `json:"mem_total"`
+	MemUsed    int64 `json:"mem_used"`
+	MemFree    int64 `json:"mem_free"`
+	MemBuffers int64 `json:"mem_buffers"`
+	MemCached  int64 `json:"mem_cached"`
+}
