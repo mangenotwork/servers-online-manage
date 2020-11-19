@@ -18,3 +18,26 @@ func TestProcMeminfo(t *testing.T) {
 	a := ProcMeminfo()
 	t.Log(*a)
 }
+
+func TestProcStat(t *testing.T) {
+	// a := GetProcStat()
+	// for _, v := range a {
+	// 	t.Log(*v)
+	// }
+	ProcStat()
+}
+
+func TestProcessProcStat(t *testing.T) {
+	//GetProcessProcStat()
+	ProcStat()
+	ProcessProcStat("1729")
+}
+
+func TestProcVersion(t *testing.T) {
+	ProcDiskstats()
+
+}
+
+func TestProcNetDev(t *testing.T) {
+	ProcNetDev()
+}

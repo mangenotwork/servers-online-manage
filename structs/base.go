@@ -46,14 +46,19 @@ type ReportPacket struct {
 type SendFilePacket struct {
 	// 文件名
 	FileName string
+
 	// 文件后缀
 	FileSuffix string
+
 	// 文件最大分包
 	MaxPacketNum int64
+
 	// 文件包计数
 	FilePacketNum int
+
 	// 文件包
 	FilePacket []byte
+
 	//结束通知 true结束
 	IsEnd bool
 }
@@ -75,13 +80,4 @@ type SlveConf struct {
 	Version    string `json:"version"`
 	MasterHost string `json:"master_host"`
 	SlveSpace  string `json:"slve_space"`
-}
-
-//从 proc/meminfo 获取内存信息
-type ProcMemInfo struct {
-	MemTotal   int64 `json:"mem_total"`
-	MemUsed    int64 `json:"mem_used"`
-	MemFree    int64 `json:"mem_free"`
-	MemBuffers int64 `json:"mem_buffers"`
-	MemCached  int64 `json:"mem_cached"`
 }

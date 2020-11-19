@@ -8,11 +8,12 @@ import (
 	"os"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mangenotwork/csdemo/lib/cmd"
 	"github.com/mangenotwork/csdemo/structs"
+	"github.com/mangenotwork/csdemo/utils"
 )
 
 //获取本机ip
@@ -23,16 +24,15 @@ func GetMyIP() string {
 		return ""
 	}
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	//fmt.Println(localAddr.String())
-	// ip := strings.Split(localAddr.String(), ":")[0]
 	return localAddr.String()
-
 }
 
+//获取host 系统类型
 func GetSysType() string {
 	return runtime.GOOS
 }
 
+//获取host 命名
 func GetHostName() string {
 	name, err := os.Hostname()
 	if err != nil {
@@ -53,6 +53,7 @@ func SysInfo() {
 	log.Println(`电脑名称：`, name)
 }
 
+//获取host的基本信息
 func GetHostInfo() *structs.HostInfo {
 	return &structs.HostInfo{
 		HostName:      GetHostName(),
@@ -69,14 +70,11 @@ func GetSystemUUID() string {
 
 // 从 /proc/cpuinfo 获取cpu相关信息
 func ProcCpuinfo() (cpuinfos []map[string]string) {
-
 	cpuinfos = make([]map[string]string, 0)
-
 	rStr := cmd.LinuxSendCommand("cat /proc/cpuinfo")
 	if rStr == "" {
 		return
 	}
-
 	rStrList := strings.Split(rStr, "processor")
 	for _, v := range rStrList {
 		v = "processor" + v
@@ -85,8 +83,8 @@ func ProcCpuinfo() (cpuinfos []map[string]string) {
 		for _, i := range vList {
 			d := strings.Split(i, ":")
 			if len(d) == 2 {
-				key := DeletePreAndSufSpace(d[0])
-				vlue := DeletePreAndSufSpace(d[1])
+				key := utils.DeletePreAndSufSpace(d[0])
+				vlue := utils.DeletePreAndSufSpace(d[1])
 				data[key] = vlue
 			}
 		}
@@ -98,48 +96,392 @@ func ProcCpuinfo() (cpuinfos []map[string]string) {
 // 从 /proc/meminfo 中读取内存
 func ProcMeminfo() (mem *structs.ProcMemInfo) {
 	rStr := cmd.LinuxSendCommand("cat /proc/meminfo")
-	log.Println(rStr)
-
+	if rStr == "" {
+		return
+	}
 	data := make(map[string]string, 0)
 	rStrList := strings.Split(rStr, "\n")
 	for _, v := range rStrList {
 		d := strings.Split(v, ":")
 		if len(d) == 2 {
-			key := DeletePreAndSufSpace(d[0])
-			vlue := DeletePreAndSufSpace(d[1])
+			key := utils.DeletePreAndSufSpace(d[0])
+			vlue := utils.DeletePreAndSufSpace(d[1])
 			data[key] = vlue
 		}
 	}
-	log.Println(data)
 
-	//MemTotal: 所有可用RAM大小 （即物理内存减去一些预留位和内核的二进制代码大小）
-	memTotal := Str2Int64(data["MemTotal"])
-
-	//MemFree: LowFree与HighFree的总和，被系统留着未使用的内存
-	memFree := Str2Int64(data["MemFree"])
-
-	memUsed := memTotal - memFree
-
-	//Buffers: 用来给文件做缓冲大小
-	buffers := Str2Int64(data["Buffers"])
-
-	//Cached: 被高速缓冲存储器（cache memory）用的内存的大小（等于diskcache minus SwapCache ）.
-	cached := Str2Int64(data["Cached"])
-
-	log.Println(memTotal, memUsed, memFree, buffers, cached)
-	log.Println("Used = ", memTotal-memFree)
-	log.Println("-buffers/cache反映的是被程序实实在在吃掉的内存 : ", memUsed-buffers-cached)
-	log.Println("+buffers/cache反映的是可以挪用的内存总数 : ", memFree+buffers+cached)
-
+	memTotal := utils.Str2Int64(data["MemTotal"])
+	memFree := utils.Str2Int64(data["MemFree"])
+	buffers := utils.Str2Int64(data["Buffers"])
+	cached := utils.Str2Int64(data["Cached"])
 	mem = &structs.ProcMemInfo{
 		MemTotal:   memTotal,
-		MemUsed:    memUsed - buffers - cached,
+		MemUsed:    memTotal - memFree - buffers - cached,
 		MemFree:    memFree + buffers + cached,
 		MemBuffers: buffers,
 		MemCached:  cached,
 	}
-
 	return
+}
+
+// /proc/stat 获取cpu 信息
+func GetProcStat() (datas []*structs.ProcStatCPUData) {
+	datas = make([]*structs.ProcStatCPUData, 0)
+	rStr := cmd.LinuxSendCommand("cat /proc/stat")
+	if rStr == "" {
+		return
+	}
+	rStrList := strings.Split(rStr, "\n")
+	for _, v := range rStrList {
+		if len(v) > 3 {
+			if v[:3] == "cpu" {
+				vStr := strings.Split(v, " ")
+				vList := make([]string, 0)
+				for _, s := range vStr {
+					s = utils.DeletePreAndSufSpace(s)
+					if s != "" {
+						vList = append(vList, s)
+					}
+				}
+				//cpu名
+				name := vList[0]
+				//user 从系统启动开始累计到当前时刻，处于用户态的运行时间，不包含 nice值为负的进程。
+				user := utils.Num2Int64(vList[1])
+
+				//system 从系统启动开始累计到当前时刻，处于核心态的运行时间。
+				system := utils.Num2Int64(vList[2])
+
+				//nice 从系统启动开始累计到当前时刻，nice值为负的进程所占用的CPU时间。
+				nice := utils.Num2Int64(vList[3])
+
+				//idle 从系统启动开始累计到当前时刻，除IO等待时间以外的其它等待时间。
+				idle := utils.Num2Int64(vList[4])
+
+				//iowait 从系统启动开始累计到当前时刻，IO等待时间(since 2.5.41)。
+				iowait := utils.Num2Int64(vList[5])
+
+				//irq 从系统启动开始累计到当前时刻，硬中断时间(since 2.6.0-test4)。
+				irq := utils.Num2Int64(vList[6])
+
+				//softirq  从系统启动开始累计到当前时刻，软中断时间(since2.6.0-test4)。
+				softirq := utils.Num2Int64(vList[7])
+
+				//stealstolen  which is the time spent in otheroperating systems
+				//when running in a virtualized environment(since 2.6.11)
+				stealstolen := utils.Num2Int64(vList[8])
+
+				//guest whichis the time spent running a virtual CPU  for  guest
+				//operating systems under the control ofthe Linux kernel(since 2.6.24)。
+				guest := utils.Num2Int64(vList[9])
+
+				//log.Println(name, user, system, nice, idle, iowait, irq, softirq, stealstolen, guest)
+
+				//总的cpu时间totalCpuTime = user + nice + system + idle + iowait + irq + softirq + stealstolen  +  guest
+				totalCpuTime := user + nice + system + idle + iowait + irq + softirq + stealstolen + guest
+
+				//user+nice+system+irq+softirq
+				userCpuTime := user + nice + system + irq + softirq
+
+				cpudata := &structs.ProcStatCPUData{
+					Name:  name,
+					Total: totalCpuTime,
+					Used:  userCpuTime,
+					Idle:  idle,
+				}
+				datas = append(datas, cpudata)
+			}
+		}
+	}
+	return
+}
+
+//总cpu使用率的计算：
+// 1、采样两个足够短的时间间隔的Cpu快照，分别记作t1,t2，其中t1、t2的结构均为
+// 2、计算总的Cpu时间片totalCpuTime
+// a)   把第一次的所有cpu使用情况求和，得到s1;
+// b)   把第二次的所有cpu使用情况求和，得到s2;
+// c)   s2 - s1得到这个时间间隔内的所有时间片，即totalCpuTime = j2 - j1 ;
+// 3、计算空闲时间idle
+// idle对应第四列的数据，用第二次的第四列 - 第一次的第四列即可
+// idle=第二次的第四列 - 第一次的第四列
+// 4、计算cpu使用率
+// pcpu =100* (total-idle)/total
+func ProcStat() {
+	var pcpu float64
+
+	procStat1 := GetProcStat()
+	//睡眠延时500ms
+	time.Sleep(500 * time.Millisecond)
+	procStat2 := GetProcStat()
+	for _, t1 := range procStat1 {
+		for _, t2 := range procStat2 {
+			if t1.Name == t2.Name {
+				total := t2.Total - t1.Total
+				idle := t2.Idle - t1.Idle
+				pcpu = 100 * float64((total - idle)) / float64(total)
+				log.Println("cpu Name = ", t1.Name)
+				log.Println("pcpu = ", pcpu)
+				log.Println("__________________________")
+			}
+		}
+	}
+}
+
+//指定进程的 /proc/*/stat 获取cpu 信息
+/*
+每个参数意思为：
+参数                                                       解释
+		0  pid=6873                                              进程(包括轻量级进程，即线程)号
+		1  comm=a.out                                          应用程序或命令的名字
+		2  task_state=R                                        任务的状态，R:runnign, S:sleeping (TASK_INTERRUPTIBLE), D:disk sleep (TASK_UNINTERRUPTIBLE), T: stopped, T:tracing stop,Z:zombie, X:dead
+		3  ppid=6723                                            父进程ID
+		4  pgid=6873                                            线程组号
+		5  sid=6723                                              该任务所在的会话组ID
+		6  tty_nr=34819(pts/3)                            该任务的tty终端的设备号，INT（34817/256）=主设备号，（34817-主设备号）=次设备号
+		7  tty_pgrp=6873                                     终端的进程组号，当前运行在该任务所在终端的前台任务(包括shell 应用程序)的PID。
+		8  task->flags=8388608                           进程标志位，查看该任务的特性
+		9  min_flt=77                                            该任务不需要从硬盘拷数据而发生的缺页（次缺页）的次数
+		10  cmin_flt=0                                            累计的该任务的所有的waited-for进程曾经发生的次缺页的次数目
+		11  maj_flt=0                                              该任务需要从硬盘拷数据而发生的缺页（主缺页）的次数
+		12  cmaj_flt=0                                            累计的该任务的所有的waited-for进程曾经发生的主缺页的次数目
+		13  utime=1587                                          该任务在用户态运行的时间，单位为jiffies
+		14  stime=1                                                该任务在核心态运行的时间，单位为jiffies
+		15  cutime=0                                              累计的该任务的所有的waited-for进程曾经在用户态运行的时间，单位为jiffies
+		16  cstime=0                                              累计的该任务的所有的waited-for进程曾经在核心态运行的时间，单位为jiffies
+		17  priority=25                                           任务的动态优先级
+		18  nice=0                                                  任务的静态优先级
+		19  num_threads=3                                    该任务所在的线程组里线程的个数
+		20  it_real_value=0                                     由于计时间隔导致的下一个 SIGALRM 发送进程的时延，以 jiffy 为单位.
+		21  start_time=5882654                             该任务启动的时间，单位为jiffies
+		22  vsize=1409024（page）                       该任务的虚拟地址空间大小
+		23  rss=56(page)                                        该任务当前驻留物理地址空间的大小
+			 Number of pages the process has in real memory,minu 3 for administrative purpose.
+              这些页可能用于代码，数据和栈。
+		24  rlim=4294967295（bytes）                  该任务能驻留物理地址空间的最大值
+		25  start_code=134512640                        该任务在虚拟地址空间的代码段的起始地址
+		26  end_code=134513720                         该任务在虚拟地址空间的代码段的结束地址
+		27  start_stack=3215579040                     该任务在虚拟地址空间的栈的结束地址
+		28  kstkesp=0                                            esp(32 位堆栈指针) 的当前值, 与在进程的内核堆栈页得到的一致.
+		29  kstkeip=2097798                                 指向将要执行的指令的指针, EIP(32 位指令指针)的当前值.
+		30  pendingsig=0                                       待处理信号的位图，记录发送给进程的普通信号
+		31  block_sig=0                                          阻塞信号的位图
+		32  sigign=0                                               忽略的信号的位图
+		33  sigcatch=082985                                  被俘获的信号的位图
+		34  wchan=0                                               如果该进程是睡眠状态，该值给出调度的调用点
+		35  nswap                                                   被swapped的页数，当前没用
+		36  cnswap                                                 所有子进程被swapped的页数的和，当前没用
+		37  exit_signal=17                                      该进程结束时，向父进程所发送的信号
+		38  task_cpu(task)=0                                  运行在哪个CPU上
+		39  task_rt_priority=0                                 实时进程的相对优先级别
+		40  task_policy=0                                        进程的调度策略，0=非实时进程，1=FIFO实时进程；2=RR实时进程
+*/
+func GetProcessProcStat(pid string) (data *structs.ProcessProcStatCPUData) {
+	data = &structs.ProcessProcStatCPUData{}
+	rStr := cmd.LinuxSendCommand(fmt.Sprintf("cat /proc/%s/stat", pid))
+	if rStr == "" {
+		return
+	}
+	rStrList := strings.Split(rStr, " ")
+	if len(rStrList) > 30 && rStrList[0] == pid {
+		//comm 应用程序或命令的名字
+		comm := rStrList[1]
+		data.Name = comm
+		//log.Println("comm 应用程序或命令的名字 = ", comm)
+
+		//task_state  任务的状态，R:runnign, S:sleeping (TASK_INTERRUPTIBLE),
+		//D:disk sleep (TASK_UNINTERRUPTIBLE), T: stopped, T:tracing stop,Z:zombie, X:dead
+		taskState := rStrList[2]
+		data.TaskState = taskState
+		//log.Println("task_state  任务的状态 = ", taskState)
+
+		//ppid 父进程ID
+		ppid := rStrList[3]
+		data.Ppid = ppid
+		//log.Println("ppid 父进程ID = ", ppid)
+
+		//pgid 线程组号
+		pgid := rStrList[4]
+		data.Pgid = pgid
+		//log.Println("pgid 线程组号 = ", pgid)
+
+		//sid  该任务所在的会话组ID
+		sid := rStrList[5]
+		data.Sid = sid
+		//log.Println("sid  该任务所在的会话组ID = ", sid)
+
+		//utime 该任务在用户态运行的时间，单位为jiffies
+		utime := utils.Num2Int64(rStrList[13])
+		//log.Println("utime 该任务在用户态运行的时间 = ", utime)
+
+		//stime 该任务在核心态运行的时间，单位为jiffies
+		stime := utils.Num2Int64(rStrList[14])
+		//log.Println("stime 该任务在核心态运行的时间 = ", stime)
+
+		//cutime 累计的该任务的所有的waited-for进程曾经在用户态运行的时间，单位为jiffies
+		cutime := utils.Num2Int64(rStrList[15])
+		//log.Println("cutime 累计的该任务的所有的waited-for进程曾经在用户态运行的时间 = ", cutime)
+
+		//cstime 累计的该任务的所有的waited-for进程曾经在核心态运行的时间，单位为jiffies
+		cstime := utils.Num2Int64(rStrList[16])
+		//log.Println("cstime 累计的该任务的所有的waited-for进程曾经在核心态运行的时间 = ", cstime)
+
+		//num_threads 该任务所在的线程组里线程的个数
+		numThreads := rStrList[19]
+		data.NumThreads = numThreads
+		//log.Println("num_threads 该任务所在的线程组里线程的个数 = ", numThreads)
+
+		//task_cpu(task) 运行在哪个CPU上
+		//taskCpu := rStrList[38]
+		//log.Println("task_cpu(task) 运行在哪个CPU上 = ", taskCpu)
+
+		//进程的总Cpu时间processCpuTime = utime + stime + cutime + cstime，该值包括其所有线程的cpu时间。
+		processCpuTime := utime + stime + cutime + cstime
+		data.ProcessCpuTime = processCpuTime
+		//log.Println("进程的总Cpu时间processCpuTime = ", processCpuTime)
+	}
+	return
+}
+
+// 某一进程Cpu使用率的计算
+// 计算方法：
+// 1．采样两个足够短的时间间隔的cpu快照与进程快照，
+// a)  每一个cpu快照均为(user、nice、system、idle、iowait、irq、softirq、stealstolen、guest)的9元组;
+// b)  每一个进程快照均为 (utime、stime、cutime、cstime)的4元组；
+// 2．分别计算出两个时刻的总的cpu时间与进程的cpu时间，分别记作：totalCpuTime1、totalCpuTime2、processCpuTime1、processCpuTime2
+// 3．计算该进程的cpu使用率pcpu = 100*( processCpuTime2 – processCpuTime1) / (totalCpuTime2 – totalCpuTime1)
+// (按100%计算，如果是多核情况下还需乘以cpu的个数);
+func ProcessProcStat(pid string) {
+	var pcpu float64
+
+	processCpuTime1 := GetProcessProcStat(pid)
+	procStat1 := GetProcStat()
+	//睡眠延时500ms
+	time.Sleep(500 * time.Millisecond)
+	processCpuTime2 := GetProcessProcStat(pid)
+	procStat2 := GetProcStat()
+	if len(procStat1) == 0 || len(procStat2) == 0 {
+		return
+	}
+	pcpu = 100 * float64((processCpuTime2.ProcessCpuTime - processCpuTime1.ProcessCpuTime)) / float64((procStat2[0].Total - procStat1[0].Total))
+	log.Println("pcpu = ", pcpu)
+}
+
+// 从 /proc/diskstats  -- 每块磁盘设备的磁盘I/O统计信息列表；（内核2.5.69以后的版本支持此功能）
+func GetProcDiskstats() (datas []*structs.ProcDiskstatsData) {
+	datas = make([]*structs.ProcDiskstatsData, 0)
+	//（内核2.5.69以后的版本支持此功能）
+	_, version := ProcVersion()
+	versionList := strings.Split(version, ".")
+	if len(versionList) < 2 {
+		return
+	}
+	if utils.Num2Int64(versionList[0]) < 2 {
+		if utils.Num2Int64(versionList[1]) < 5 {
+			return
+		}
+		return
+	}
+
+	rStr := cmd.LinuxSendCommand("cat /proc/diskstats")
+	if rStr == "" {
+		return
+	}
+
+	//1:设备号  2:编号  3:设备   4:读完成次数  5:合并完成次数   6:读扇区次数   7:读操作花费毫秒数   8:写完成次数
+	//9:合并写完成次数    10:写扇区次数    11:写操作花费的毫秒数    12:正在处理的输入/输出请求数    13:输入/输出操作花费的毫秒数
+	//14:输入/输出操作花费的加权毫秒数。
+	rStrList := strings.Split(rStr, "\n")
+	for _, v := range rStrList {
+		vList := strings.Split(v, " ")
+		diskListData := []string{}
+		for _, d := range vList {
+			if d != "" {
+				diskListData = append(diskListData, d)
+			}
+		}
+		if len(diskListData) < 13 {
+			continue
+		}
+
+		datas = append(datas, &structs.ProcDiskstatsData{
+			DiskName:     diskListData[2],
+			IOTime:       utils.Num2Int64(diskListData[12]),
+			ReadRequest:  utils.Num2Int64(diskListData[3]),
+			WriteRequest: utils.Num2Int64(diskListData[7]),
+			MsecRead:     utils.Num2Int64(diskListData[6]),
+			MsecWrite:    utils.Num2Int64(diskListData[10]),
+		})
+	}
+	return
+}
+
+// 从 /proc/diskstats  -- 每块磁盘设备的磁盘I/O统计信息
+// 采样两个足够短的时间间隔的磁盘快照，标记为t1、t2，计算t1时间的输入/输出操作花费的毫秒数used1，
+// 计算t2时间的输入/输出操作花费的毫秒数used2。
+// 于是磁盘IO操作百分比为：
+// 100 * （used2 - used1）/ （t2 - t1）
+// BUG:  不准确
+func ProcDiskstats() {
+
+	used1List := GetProcDiskstats()
+	t1 := time.Now().UnixNano()
+
+	//睡眠延时500ms
+	time.Sleep(1000 * time.Millisecond)
+	used2List := GetProcDiskstats()
+
+	t2 := time.Now().UnixNano()
+
+	totalDuration := float64((t2 - t1) / 1000 / 1000)
+
+	for _, u1 := range used1List {
+		for _, u2 := range used2List {
+			if u1.DiskName == u2.DiskName {
+				log.Println(*u1, *u2, (t2-t1)/1000/1000)
+				DiskIO := (float64(u2.IOTime-u1.IOTime) / totalDuration * 100)
+				log.Println("DiskIO = ", DiskIO)
+				read_use_io := float64(u2.MsecRead - u1.MsecRead)
+				write_use_io := float64(u2.MsecWrite - u1.MsecWrite)
+				read_io := float64(u2.ReadRequest - u1.ReadRequest)
+				write_io := float64(u2.WriteRequest - u1.WriteRequest)
+				read_write_io := float64(u2.IOTime - u1.IOTime)
+				readwrite_io := read_io + write_io
+				io_awit := int(read_use_io + write_use_io/readwrite_io*10000)
+				io_rs := (read_io / totalDuration) * 10000
+				io_ws := (write_io / totalDuration) * 10000
+				io_util := (read_write_io / (totalDuration * 1000)) * 10000
+				log.Println("io_awit = ", io_awit)
+				log.Println("io_rs = ", io_rs)
+				log.Println("io_ws = ", io_ws)
+				log.Println("io_util = ", io_util)
+				log.Println("_________________________________________")
+			}
+		}
+	}
+}
+
+// 从 /proc/version 当前系统运行的内核版本号
+func ProcVersion() (string, string) {
+	rStr := cmd.LinuxSendCommand("cat /proc/version")
+	if rStr == "" {
+		return rStr, ""
+	}
+	version := ""
+	reg := regexp.MustCompile(`Linux version(.*?)-`)
+	sList := reg.FindStringSubmatch(rStr)
+	if len(sList) > 1 {
+		version = sList[1]
+	}
+	return rStr, utils.DeletePreAndSufSpace(version)
+}
+
+//从/proc/net/dev中读取  采集网卡信息
+func ProcNetDev() {
+	rStr := cmd.LinuxSendCommand("cat /proc/net/dev")
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
 }
 
 /*
@@ -220,53 +562,3 @@ sudo dmidecode -s system-uuid
 
 
 */
-
-//删除字符串前后两端的所有空格
-func DeletePreAndSufSpace(str string) string {
-	strList := []byte(str)
-	spaceCount, count := 0, len(strList)
-	for i := 0; i <= len(strList)-1; i++ {
-		if strList[i] == 32 {
-			spaceCount++
-		} else {
-			break
-		}
-	}
-
-	strList = strList[spaceCount:]
-	spaceCount, count = 0, len(strList)
-	for i := count - 1; i >= 0; i-- {
-		if strList[i] == 32 {
-			spaceCount++
-		} else {
-			break
-		}
-	}
-
-	return string(strList[:count-spaceCount])
-}
-
-//字符串转flot64
-func Str2Flot64(s string) float64 {
-	floatnum, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		floatnum = 0
-	}
-	return floatnum
-}
-
-//字符串转int64
-func Str2Int64(s string) int64 {
-	reg := regexp.MustCompile(`[0-9]+`)
-	sList := reg.FindAllString(s, -1)
-	log.Println(sList)
-	if len(sList) == 0 {
-		return 0
-	}
-
-	int64num, err := strconv.ParseInt(sList[0], 10, 64)
-	if err != nil {
-		return 0
-	}
-	return int64num
-}
