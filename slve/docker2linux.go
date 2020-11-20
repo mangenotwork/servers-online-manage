@@ -2,12 +2,15 @@
 package slve
 
 import (
+	"bufio"
+	"io"
 	"log"
 	"os"
 	"regexp"
 	"strings"
 
-	"github.com/mangenotwork/csdemo/lib/cmd"
+	"github.com/mangenotwork/servers-online-manage/lib/cmd"
+	"github.com/mangenotwork/servers-online-manage/utils"
 )
 
 //host 是否安装docker
@@ -77,7 +80,8 @@ func DockerFragmentPath() (path string) {
 	if len(rStrList) < 2 {
 		return
 	}
-	path = rStrList[1]
+	path = utils.DeletePreAndSufSpace(rStrList[1])
+	path = strings.Trim(path, "\n")
 	return
 }
 
@@ -118,6 +122,7 @@ func DockerIsOpenAPI() (isOpen bool, url string) {
 }
 
 //开启 docker http api
+//修改 docker 配置的api tcp地址
 //1. 打开docker配置文件
 //2. 找到 ExecStart 所在的行，在行尾追加 -H tcp://0.0.0.0:5678
 //3. 重新加载配置文件，重启docker daemon
@@ -125,11 +130,104 @@ func DockerIsOpenAPI() (isOpen bool, url string) {
 // b) sudo systemctl restart docker
 //4. 检查省份开启 docker -H localhost:5678 version
 func OpenDockerAPI() {
-	dockerFileName := "/home/mange/Desktop/go/src/github.com/mangenotwork/servers-online-manage/docker1.service"
+	port := "12225"
+
+	//检查断开是否占用
+	rStr := cmd.LinuxSendCommand("lsof -i:" + port)
+	log.Println("rStr : ", rStr)
+	if rStr != "" {
+		log.Println("端口已经被占用")
+		return
+	}
+
+	//docker的配置文件
+	//dockerFileName := "/lib/systemd/system/docker.service"
+	dockerFileName := DockerFragmentPath()
 	file, err := os.Open(dockerFileName)
 	if err != nil {
 		log.Println("open file fail:", err)
 		return
 	}
 	defer file.Close()
+
+	//新建一个接收文件
+	outFilename := dockerFileName + ".new"
+	out, err := os.OpenFile(outFilename, os.O_RDWR|os.O_CREATE, 0766)
+	if err != nil {
+		log.Println("Open write file fail:", err)
+		os.Exit(-1)
+	}
+	defer out.Close()
+
+	br := bufio.NewReader(file)
+	index := 1
+	for {
+		line, _, err := br.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Println("read err:", err)
+			return
+		}
+		lineStr := string(line)
+		log.Println(lineStr, index)
+
+		if len(lineStr) > 9 && lineStr[0:9] == "ExecStart" {
+
+			//判断是否已经有 tcp://
+			vList := strings.Split(lineStr, " ")
+		Loop:
+			for i := 0; i < len(vList); i++ {
+				if vList[i] == "-H" && strings.Contains(vList[i+1], "tcp://") {
+					vList = append(vList[:i], vList[i+2:]...)
+					goto Loop
+				}
+			}
+			newStr := strings.Join(vList, " ")
+			log.Println("追加")
+			lineStr = newStr + " -H tcp://0.0.0.0:" + port
+			log.Println(lineStr)
+		}
+
+		_, err = out.WriteString(lineStr + "\n")
+		if err != nil {
+			log.Println("write to file fail:", err)
+			return
+		}
+
+		index++
+	}
+
+	//删除
+	err = os.Remove(dockerFileName)
+	if err != nil {
+		log.Println("删除失败:", err)
+		return
+	}
+	//改名
+	err = os.Rename(outFilename, dockerFileName)
+	if err != nil {
+		log.Println("改名失败:", err)
+		return
+	}
+
+	//sudo systemctl daemon-reload
+	reloadStr := cmd.LinuxSendCommand("sudo systemctl daemon-reload")
+	log.Println("reloadStr : ", reloadStr)
+
+	//sudo systemctl restart docker
+	restartStr := cmd.LinuxSendCommand("sudo systemctl restart docker")
+	log.Println("reloadStr : ", restartStr)
+
+	//检查是否生效
+	//docker -H 0.0.0.0:12221 info
+	//没有 Cannot connect to the Docker daemo 则成功
+	testopen := cmd.LinuxSendCommand("docker -H 0.0.0.0:" + port + " info")
+	if t := strings.Contains(testopen, "Cannot connect to the Docker daemo"); t {
+		log.Println("docker Api 启动失败！")
+	} else {
+		log.Println("docker Api 启动成功！")
+	}
+
 }

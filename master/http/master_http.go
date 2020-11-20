@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangenotwork/csdemo/lib/global"
-	"github.com/mangenotwork/csdemo/master/tcp"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+	"github.com/mangenotwork/servers-online-manage/master/tcp"
 )
 
 // gin http servers

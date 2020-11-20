@@ -9,8 +9,8 @@ import (
 
 	"net"
 
-	"github.com/mangenotwork/csdemo/lib/global"
-	"github.com/mangenotwork/csdemo/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+	"github.com/mangenotwork/servers-online-manage/structs"
 )
 
 //通过协议 编码数据

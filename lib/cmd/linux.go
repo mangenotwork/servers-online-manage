@@ -1,17 +1,9 @@
 package cmd
 
 import (
-	_ "fmt"
-	_ "io"
 	"io/ioutil"
 	"log"
-	_ "os"
 	"os/exec"
-
-	_ "encoding/json"
-	_ "flag"
-	_ "net/url"
-	_ "time"
 )
 
 //Linux Send Command Linux执行命令

@@ -1,0 +1,15 @@
+node_modules/
+.idea/
+test/
+.vscode/
+dist/
+build/
+vendor/
+logs/
+.sass-cache/
+
+
+*.exe
+*.exe~
+*.log
+

@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mangenotwork/csdemo/lib/cmd"
-	"github.com/mangenotwork/csdemo/structs"
-	"github.com/mangenotwork/csdemo/utils"
+	"github.com/mangenotwork/servers-online-manage/lib/cmd"
+	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/utils"
 )
 
 //获取本机ip

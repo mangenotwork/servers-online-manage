@@ -6,12 +6,12 @@ import (
 	"net"
 	"os"
 
-	"github.com/mangenotwork/csdemo/lib/global"
-	pk "github.com/mangenotwork/csdemo/lib/packet"
-	"github.com/mangenotwork/csdemo/lib/protocol"
-	"github.com/mangenotwork/csdemo/master/http"
-	"github.com/mangenotwork/csdemo/master/tcp"
-	"github.com/mangenotwork/csdemo/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
+	"github.com/mangenotwork/servers-online-manage/lib/protocol"
+	"github.com/mangenotwork/servers-online-manage/master/http"
+	"github.com/mangenotwork/servers-online-manage/master/tcp"
+	"github.com/mangenotwork/servers-online-manage/structs"
 )
 
 func main() {

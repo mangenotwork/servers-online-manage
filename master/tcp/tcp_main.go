@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
-	pk "github.com/mangenotwork/csdemo/lib/packet"
-	"github.com/mangenotwork/csdemo/structs"
+	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
+	"github.com/mangenotwork/servers-online-manage/structs"
 )
 
 //Master接收的具体业务

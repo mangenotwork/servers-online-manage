@@ -8,11 +8,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/mangenotwork/csdemo/lib/global"
-	pk "github.com/mangenotwork/csdemo/lib/packet"
-	"github.com/mangenotwork/csdemo/lib/protocol"
-	"github.com/mangenotwork/csdemo/slve"
-	"github.com/mangenotwork/csdemo/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
+	"github.com/mangenotwork/servers-online-manage/lib/protocol"
+	"github.com/mangenotwork/servers-online-manage/slve"
+	"github.com/mangenotwork/servers-online-manage/structs"
 )
 
 func main() {

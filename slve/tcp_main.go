@@ -8,10 +8,11 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/mangenotwork/csdemo/lib/global"
-	pk "github.com/mangenotwork/csdemo/lib/packet"
-	"github.com/mangenotwork/csdemo/lib/protocol"
-	"github.com/mangenotwork/csdemo/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/cmd"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
+	"github.com/mangenotwork/servers-online-manage/lib/protocol"
+	"github.com/mangenotwork/servers-online-manage/structs"
 )
 
 var lock = &sync.Mutex{}
@@ -51,9 +52,9 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 
 	//接收master 给的命令，执行后返回数据
 	case pk.SET_SLVE_CMD_PACKET:
-		cmd := string(packet.PacketContent)
-		log.Println("接收服务端给的命令 : ", cmd)
-		result := RunInLinux(cmd)
+		cmdStr := string(packet.PacketContent)
+		log.Println("接收服务端给的命令 : ", cmdStr)
+		result := cmd.LinuxSendCommand(cmdStr)
 		log.Println("执行命令后返回 : ", result)
 		conn.Write(Str2Bytes(result, pk.RECEPTION_SLVE_PACKET))
 		return
