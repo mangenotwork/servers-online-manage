@@ -68,3 +68,10 @@ type ProcDiskstatsData struct {
 	//写操作花费的毫秒数
 	MsecWrite int64
 }
+
+//从/proc/net/dev中读取  采集网卡信息
+type ProcNetDevData struct {
+	Name string
+	Recv int64
+	Send int64
+}

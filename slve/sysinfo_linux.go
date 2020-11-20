@@ -1,4 +1,5 @@
-//获取计算机的系统信息的实现
+// 获取计算机的系统信息的实现
+// Linux
 package slve
 
 import (
@@ -476,36 +477,186 @@ func ProcVersion() (string, string) {
 }
 
 //从/proc/net/dev中读取  采集网卡信息
-func ProcNetDev() {
+func GetProcNetDev() (datas []*structs.ProcNetDevData) {
+	datas = make([]*structs.ProcNetDevData, 0)
 	rStr := cmd.LinuxSendCommand("cat /proc/net/dev")
+	if rStr == "" {
+		return
+	}
+
+	rStrList := strings.Split(rStr, "\n")
+	for _, v := range rStrList {
+		vList := strings.Split(v, " ")
+		dataList := make([]string, 0)
+		for _, i := range vList {
+			if i != "" {
+				dataList = append(dataList, i)
+			}
+		}
+		if len(dataList) == 17 {
+			name := dataList[0]
+			recv := utils.Num2Int64(dataList[1])
+			send := utils.Num2Int64(dataList[9])
+			// log.Println(name, recv, send)
+			datas = append(datas, &structs.ProcNetDevData{name, recv, send})
+		}
+	}
+	return
+}
+
+// 从/proc/net/dev中读取信息并计算
+//采样两个时间段的网卡信息 n1,n2 ,  时间t1,t2
+//网络(kb/sec) = n2-n1/1024*(t2-t1)
+func ProcNetDev() {
+	n1 := GetProcNetDev()
+	//休眠1s,误差忽略
+	time.Sleep(1 * time.Second)
+	n2 := GetProcNetDev()
+
+	for _, v1 := range n1 {
+		for _, v2 := range n2 {
+			if v1.Name == v2.Name {
+				receice_rate := (v2.Recv - v1.Recv) / 1024 * 1
+				send_rate := (v2.Send - v1.Send) / 1024 * 1
+				log.Println(v1.Name, "RX :", receice_rate, " | TX: ", send_rate, " |TOL: ", receice_rate+send_rate)
+			}
+		}
+	}
+}
+
+// 从/proc/net/snmp 采集各层网络协议的收发包的情况
+// tcp : CurrEstab(TCP连接数)
+func ProcNetSnmp() {
+
+	rStr := cmd.LinuxSendCommand("cat /proc/net/snmp")
+	if rStr == "" {
+		return
+	}
+	rStrList := strings.Split(rStr, "\n")
+
+	for i := 0; i < len(rStrList)-1; i++ {
+		if (i+1)%2 == 0 {
+			continue
+		}
+		//log.Println(rStrList[i], rStrList[i+1])
+		keyList := strings.Split(rStrList[i], " ")
+		vlueList := strings.Split(rStrList[i+1], " ")
+		//log.Println(keyList)
+		//log.Println(vlueList)
+		mapData := map[string]string{}
+		mapData["name"] = vlueList[0]
+		for i := 0; i < len(keyList); i++ {
+			mapData[keyList[i]] = vlueList[i]
+		}
+		log.Println(mapData)
+	}
+}
+
+// 从/proc/<pid>/cmdline  获取启动当前进程的完整命令，但僵尸进程目录中的此文件不包含任何信息；
+func ProcPIDCmdline(pid string) {
+	rStr := cmd.LinuxSendCommand(fmt.Sprintf("cat /proc/%s/cmdline", pid))
 	if rStr == "" {
 		return
 	}
 	log.Println(rStr)
 }
 
+// 从/proc/<pid>/environ 当前进程的环境变量列表，彼此间用空字符（NULL）隔开；变量用大写字母表示，其值用小写字母表示；
+func ProcPIDEnviron(pid string) {
+	rStr := cmd.LinuxSendCommand(fmt.Sprintf("cat /proc/%s/environ", pid))
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+	reg := regexp.MustCompile(`(.*?)=[^A-Z]+`)
+	sList := reg.FindAllString(rStr, -1)
+	//log.Println(sList, len(sList))
+	for k, v := range sList {
+		log.Println(k, v)
+	}
+}
+
+// 从 /proc/<pid>/limits —> 当前进程所使用的每一个受限资源的软限制、硬限制和管理单元；
+//此文件仅可由实际启动当前进程的UID用户读取；（2.6.24以后的内核版本支持此功能）；
+func ProcPIDLimits(pid string) {
+	rStr := cmd.LinuxSendCommand(fmt.Sprintf("cat /proc/%s/limits", pid))
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+}
+
+// 从 /proc/<pid>/maps — 当前进程关联到的每个可执行文件和库文件在内存中的映射区域及其访问权限所组成的列表；
+func ProcPIDMaps(pid string) {
+	rStr := cmd.LinuxSendCommand(fmt.Sprintf("cat /proc/%s/maps", pid))
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+}
+
+// 从 /proc/<pid>/status —当前进程的状态信息，包含一系统格式化后的数据列，可读性较好
+func ProcPIDStatus(pid string) {
+	rStr := cmd.LinuxSendCommand(fmt.Sprintf("cat /proc/%s/status", pid))
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+}
+
+// 从 /proc/crypto  -- 系统上已安装的内核使用的密码算法及每个算法的详细信息列表；
+func ProcCrypto() {
+	rStr := cmd.LinuxSendCommand("cat /proc/crypto")
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+}
+
+// 从 /proc/modules  -- 当前装入内核的所有模块名称列表，可以由lsmod命令使用，也可以直接查看；如下所示，其中第一列表示模块名，第二列表示此模块占用内存空间大小，
+//				第三列表示此模块有多少实例被装入，第四列表示此模块依赖于其它哪些模块，第五列表示此模块的装载状态（Live：已经装入；Loading：正在装入；Unloading：正在卸载），
+//				第六列表示此模块在内核内存（kernel memory）中的偏移量；
+func ProcModules() {
+	rStr := cmd.LinuxSendCommand("cat /proc/modules")
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+}
+
+// 从 /proc/uptime   --  系统上次启动以来的运行时间，如下所示，其第一个数字表示系统运行时间，第二个数字表示系统空闲时间，单位是秒；
+func ProcUptime() {
+	rStr := cmd.LinuxSendCommand("cat /proc/uptime")
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+	rStrList := strings.Split(rStr, " ")
+	runTime := rStrList[0]
+	ldleTime := rStrList[1]
+	log.Println("runTime = ", runTime, " | ldleTime = ", ldleTime)
+
+}
+
+//  ==================== 未使用  =========================
 /*
 每个独立进程: /proc/1/*
-cmdline — 启动当前进程的完整命令，但僵尸进程目录中的此文件不包含任何信息；
 cwd — 指向当前进程运行目录的一个符号链接；
-environ — 当前进程的环境变量列表，彼此间用空字符（NULL）隔开；变量用大写字母表示，其值用小写字母表示；
 exe — 指向启动当前进程的可执行文件（完整路径）的符号链接，通过/proc/N/exe可以启动当前进程的一个拷贝；
 fd — 这是个目录，包含当前进程打开的每一个文件的文件描述符（file descriptor），这些文件描述符是指向实际文件的一个符号链接；
-limits — 当前进程所使用的每一个受限资源的软限制、硬限制和管理单元；此文件仅可由实际启动当前进程的UID用户读取；（2.6.24以后的内核版本支持此功能）；
-maps — 当前进程关联到的每个可执行文件和库文件在内存中的映射区域及其访问权限所组成的列表；
 mem — 当前进程所占用的内存空间，由open、read和lseek等系统调用使用，不能被用户读取； （用户读不到）
 root — 指向当前进程运行根目录的符号链接；在Unix和Linux系统上，通常采用chroot命令使每个进程运行于独立的根目录；
 stat — 当前进程的状态信息，包含一系统格式化后的数据列，可读性差，通常由ps命令使用；
 statm — 当前进程占用内存的状态信息，通常以“页面”（page）表示；
 status — 与stat所提供信息类似，但可读性较好，如下所示，每行表示一个属性信息；其详细介绍请参见 proc的man手册页；
+*/
 
+/*
 全局: /proc/*
 /proc/buddyinfo  --  用于诊断内存碎片问题的相关信息文件；
 /proc/cmdline  --  在启动时传递至内核的相关参数信息，这些信息通常由lilo或grub等启动管理工具进行传递；
 /proc/cpuinfo  -- 处理器的相关信息的文件；
-/proc/crypto  -- 系统上已安装的内核使用的密码算法及每个算法的详细信息列表；
 /proc/devices  -- 系统已经加载的所有块设备和字符设备的信息，包含主设备号和设备组（与主设备号对应的设备类型）名；
-/proc/diskstats  -- 每块磁盘设备的磁盘I/O统计信息列表；（内核2.5.69以后的版本支持此功能）
 /proc/dma  -- 每个正在使用且注册的ISA DMA通道的信息列表；
 /proc/execdomains  --  内核当前支持的执行域（每种操作系统独特“个性”）信息列表；
 /proc/fb  -- 帧缓冲设备列表文件，包含帧缓冲设备的设备号和相关驱动信息；
@@ -523,42 +674,14 @@ status — 与stat所提供信息类似，但可读性较好，如下所示，�
 				POSIX表示目前较新类型的文件锁，由lockf系统调用产生，FLOCK是传统的UNIX文件锁，由flock系统调用产生；第三列也通常由两种类型，ADVISORY表示不允许其他用户锁定此文件，
 				但允许读取，MANDATORY表示此文件锁定期间不允许其他用户任何形式的访问；
 /proc/mdstat  -- 保存RAID相关的多块磁盘的当前状态信息，在没有使用RAID机器上，其显示为如下状态：
-/proc/meminfo  -- 系统中关于当前内存的利用状况等的信息，常由free命令使用；可以使用文件查看命令直接读取此文件，其内容显示为两列，前者为统计属性，后者为对应的值；
-/proc/modules  -- 当前装入内核的所有模块名称列表，可以由lsmod命令使用，也可以直接查看；如下所示，其中第一列表示模块名，第二列表示此模块占用内存空间大小，
-				第三列表示此模块有多少实例被装入，第四列表示此模块依赖于其它哪些模块，第五列表示此模块的装载状态（Live：已经装入；Loading：正在装入；Unloading：正在卸载），
-				第六列表示此模块在内核内存（kernel memory）中的偏移量；
 /proc/partitions  -- 块设备每个分区的主设备号（major）和次设备号（minor）等信息，同时包括每个分区所包含的块（block）数目（如下面输出中第三列所示）；
 /proc/pci  -- 内核初始化时发现的所有PCI设备及其配置信息列表，其配置信息多为某PCI设备相关IRQ信息，可读性不高，可以用“/sbin/lspci –vb”命令获得较易理解的相关信息；
 				在2.6内核以后，此文件已为/proc/bus/pci目录及其下的文件代替；
 /proc/slabinfo  -- 在内核中频繁使用的对象（如inode、dentry等）都有自己的cache，即slab pool，而/proc/slabinfo文件列出了这些对象相关slap的信息；详情可以参见内核文档中slapinfo的手册页；
-
-/proc/stat
-实时追踪自系统上次启动以来的多种统计信息；如下所示，其中，
-“cpu”行后的八个值分别表示以1/100（jiffies）秒为单位的统计值（包括系统运行于用户模式、低优先级用户模式，运系统模式、空闲模式、I/O等待模式的时间等）；
-“intr”行给出中断的信息，第一个为自系统启动以来，发生的所有的中断的次数；然后每个数对应一个特定的中断自系统启动以来所发生的次数；
-“ctxt”给出了自系统启动以来CPU发生的上下文交换的次数。
-“btime”给出了从系统启动到现在为止的时间，单位为秒；
-“processes (total_forks) 自系统启动以来所创建的任务的个数目；
-“procs_running”：当前运行队列的任务的数目；
-“procs_blocked”：当前被阻塞的任务的数目；
-
 /proc/swaps
 当前系统上的交换分区及其空间利用信息，如果有多个交换分区的话，则会每个交换分区的信息分别存储于/proc/swap目录中的单独文件中，而其优先级数字越低，被使用到的可能性越大；下面是作者系统中只有一个交换分区时的输出信息；
-
-/proc/uptime   --  系统上次启动以来的运行时间，如下所示，其第一个数字表示系统运行时间，第二个数字表示系统空闲时间，单位是秒；
-
-/proc/version
-当前系统运行的内核版本号，在作者的RHEL5.3上还会显示系统安装的gcc版本，如下所示；
-
 /proc/vmstat
 当前系统虚拟内存的多种统计数据，信息量可能会比较大，这因系统而有所不同，可读性较好；下面为作者机器上输出信息的一个片段；（2.6以后的内核支持此文件）
-
 /proc/zoneinfo
 内存区域（zone）的详细信息列表，信息量较大，
-
-
-设备唯一id
-sudo dmidecode -s system-uuid
-
-
 */

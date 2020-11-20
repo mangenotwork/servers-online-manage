@@ -1,8 +1,8 @@
 ## TODO List
-Sqlist 数据库
-Slve 查看空间
-Slve 性能采集
-Slve 环境变量
+- Sqlist 数据库
+- Slve 查看空间
+- Slve 性能采集
+- Slve 环境变量
 
 ## Complete
 1. 获取 Slve Host 信息

@@ -41,3 +41,34 @@ func TestProcVersion(t *testing.T) {
 func TestProcNetDev(t *testing.T) {
 	ProcNetDev()
 }
+
+func TestProcNetSnmp(t *testing.T) {
+	//ProcNetSnmp()
+	//ProcPIDCmdline("221")
+	//ProcPIDEnviron("11606")
+	//ProcPIDLimits("11606")
+	//ProcPIDMaps("11606")
+	//ProcPIDStatus("11606")
+	//ProcCrypto()
+	//ProcModules()
+	ProcUptime()
+}
+
+func TestHaveDocker(t *testing.T) {
+	// isDocker, pid := HaveDocker()
+	// t.Log(isDocker, pid)
+
+	// version := CmdDockerVersion()
+	// t.Log(version)
+
+	// path := DockerFragmentPath()
+	// t.Log(path)
+
+	// file := CatDockerFragmentPath()
+	// t.Log(file)
+
+	// isopen, url := DockerIsOpenAPI()
+	// t.Log(isopen, url)
+
+	OpenDockerAPI()
+}
