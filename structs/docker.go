@@ -8,4 +8,6 @@ type DockerImagesAction struct {
 	Action string
 	//数据包
 	Packet []byte
+	//错误
+	Error error
 }

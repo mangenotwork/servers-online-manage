@@ -1,10 +1,13 @@
-// docker api 对应的功能实现
+// docker Remote api 对应的功能实现
+// 这里我简述为 通过http 操作 docker
 package slve
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 //  ============    容器
@@ -108,24 +111,138 @@ import (
 
 //镜像列表 images
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImageList
-func ImageList() []byte{
-	url := "http://0.0.0.0:12225" + "/images/json"
-	resp, err := http.Get(url)
-	log.Println(resp,resp.Body, err)
+func ImageList() (body []byte, err error){
+	params := url.Values{}
+	Url, err := url.Parse("http://0.0.0.0:12225/images/json")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	//all  是否显示所有
+	params.Set("all","true")
+	//digests    摘要
+	//默认 true
+	params.Set("digests","true")
+
+	//如果参数中有中文参数,这个方法会进行URLEncode
+	Url.RawQuery = params.Encode()
+	urlPath := Url.String()
+
+	resp, err := http.Get(urlPath)
+	if err != nil{
+		return
+	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	log.Println(string(body))
-	return body
+	body, err = ioutil.ReadAll(resp.Body)
+	return
 }
 
+//TODO
 //打包镜像 Build an image
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImageBuild
+func ImageBuild(){
+	params := url.Values{}
+	Url, err := url.Parse("http://0.0.0.0:12225/build")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	//dockerfile
+	//默认：Dockerfile
+	//在构建上下文中路径到Dockerfile。如果指定了remote并指向外部Dockerfile，则忽略此选项。
+	params.Set("dockerfile","Dockerfile")
+
+	//t   添加一个 tag
+	//默认： latest
+	params.Set("t","latest")
+
+	//extrahosts  要添加到/etc/hosts的额外主机
+
+	//remote  string
+
+	//q   bool
+	//默认：false
+	//按详细的构建输出。
+	params.Set("q","false")
+
+	//nocache  bool
+	//默认：false
+	//构建时不使用缓存。
+	params.Set("nocache","false")
+
+	//cachefrom  string
+	//JSON array of images used for build cache resolution.
+
+	//pull
+	//即使本地存在较旧的镜像，也尝试拉取镜像。
+
+	//rm
+	//默认：true
+	//在成功构建后删除中间容器。
+
+	//forcerm
+	//默认： false
+	//始终删除中间容器，即使出现故障。
+
+	//memory
+	//内存限制。
+
+	//memswap
+	//Total memory (memory + swap). Set as -1 to disable swap.
+
+	//cpushares
+	//CPU共享(相对权重)
+
+	//cpusetcpus
+	//CPUs in which to allow execution (e.g., 0-3, 0,1).
+
+	log.Println(Url)
+}
 
 //删除builder缓存  Delete builder cache
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/BuildPrune
 
 //创建一个镜像  Create an image
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImageCreate
+func ImageCreate() {
+
+	params := url.Values{}
+	Url, err := url.Parse("http://0.0.0.0:12225/images/create")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	//fromImage
+	//要提取的镜像名称。名称可以包括标签或摘要。此参数只能在导入映像时使用。如果HTTP连接关闭，拉取操作将被取消
+	params.Set("fromImage","nginx")
+
+	//fromSrc
+	//要导入的源。该值可以是一个URL，可以从中检索图像，或者-从请求主体中读取图像。此参数只能在导入映像时使用。
+
+	//repo
+	//导入映像时提供给映像的存储库名称。回购可以包括一个标签。此参数只能在导入映像时使用。
+
+	//tag
+	//导入镜像的tag
+
+	//message
+	//为导入的镜像提交消息。
+
+	//platform
+	//Platform in the format os[/arch[/variant]]
+
+	Url.RawQuery = params.Encode()
+	urlPath := Url.String()
+	log.Println(urlPath)
+	resp, err := http.Post(urlPath, "application/x-www-form-urlencoded", nil)
+	log.Println(resp, err)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	log.Println(string(body),err)
+}
 
 //检查一个镜像
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImageInspect
@@ -141,9 +258,66 @@ func ImageList() []byte{
 
 //删除一个镜像
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImageDelete
+func ImageDelete(){
+	params := url.Values{}
+	Url, err := url.Parse("http://0.0.0.0:12225/images/5a683654e5d5")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	Url.RawQuery = params.Encode()
+	urlPath := Url.String()
+	log.Println(urlPath)
+
+	req, _ := http.NewRequest("DELETE", urlPath, nil)
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	fmt.Println(res)
+	fmt.Println(string(body))
+}
 
 //搜索一个镜像
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImageSearch
+func ImageSearch(term,limit string){
+	params := url.Values{}
+	Url, err := url.Parse("http://0.0.0.0:12225/images/search")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	//添加参数
+	//term
+	//搜索词
+	params.Set("term",term)
+
+	//limit
+	if limit == ""{
+		limit = "10"
+	}
+	params.Set("limit",limit)
+
+	//filters
+	//A JSON encoded value of the filters (a map[string][]string) to process on the images list. Available filters:
+	//筛选参数:
+	//is-automated=(true|false)
+	//is-official=(true|false)
+	//stars=<number> Matches images that has at least 'number' stars.
+
+	//如果参数中有中文参数,这个方法会进行URLEncode
+	Url.RawQuery = params.Encode()
+	urlPath := Url.String()
+
+	resp, err := http.Get(urlPath)
+	if err != nil{
+		log.Println(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	log.Println(string(body), err)
+}
 
 //删除未使用的镜像
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImagePrune
@@ -159,6 +333,11 @@ func ImageList() []byte{
 
 //导入一个镜像
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/ImageLoad
+func ImageLoad(){
+
+}
+
+//    =================   网络
 
 //网络列表
 //doc:  https://docs.docker.com/engine/api/v1.40/#operation/NetworkList

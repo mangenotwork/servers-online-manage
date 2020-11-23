@@ -123,10 +123,11 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		var dockerImagesPacket structs.DockerImagesAction
 		json.Unmarshal(packet.PacketContent, &dockerImagesPacket)
 		log.Println("收到Action = ", dockerImagesPacket.Action)
-		data := Images(dockerImagesPacket.Action)
+		data,err := Images(dockerImagesPacket.Action)
 		packetData := &structs.DockerImagesAction{
 			Action: dockerImagesPacket.Action,
 			Packet: data,
+			Error: err,
 		}
 		SendPackat(conn,packetData,pk.Docker_Images)
 		return

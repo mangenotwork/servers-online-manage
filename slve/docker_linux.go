@@ -131,7 +131,6 @@ func DockerIsOpenAPI() (isOpen bool, url string) {
 //4. 检查省份开启 docker -H localhost:5678 version
 func OpenDockerAPI() {
 	port := "12225"
-
 	//检查断开是否占用
 	rStr := cmd.LinuxSendCommand("lsof -i:" + port)
 	log.Println("rStr : ", rStr)
@@ -140,6 +139,42 @@ func OpenDockerAPI() {
 		return
 	}
 
+	s := " -H tcp://0.0.0.0:" + port
+	ModifyDockerExecStart(s)
+	RestartDocker()
+	//检查是否生效
+	//docker -H 0.0.0.0:12221 info
+	//没有 Cannot connect to the Docker daemo 则成功
+	testopen := cmd.LinuxSendCommand("docker -H 0.0.0.0:" + port + " info")
+	if t := strings.Contains(testopen, "Cannot connect to the Docker daemo"); t {
+		log.Println("docker Api 启动失败！")
+	} else {
+		log.Println("docker Api 启动成功！")
+	}
+
+}
+
+//关闭docker api
+func CloseDockerAPI(){
+	ModifyDockerExecStart("")
+	RestartDocker()
+
+}
+
+//重启docker
+func RestartDocker(){
+	//sudo systemctl daemon-reload
+	reloadStr := cmd.LinuxSendCommand("sudo systemctl daemon-reload")
+	log.Println("reloadStr : ", reloadStr)
+
+	//sudo systemctl restart docker
+	restartStr := cmd.LinuxSendCommand("sudo systemctl restart docker")
+	log.Println("reloadStr : ", restartStr)
+}
+
+//修改docker的配置文件中的 ExecStart
+//主要用于 开启docker api, 改修docker api, 关闭docker api
+func ModifyDockerExecStart(s string){
 	//docker的配置文件
 	//dockerFileName := "/lib/systemd/system/docker.service"
 	dockerFileName := DockerFragmentPath()
@@ -186,7 +221,7 @@ func OpenDockerAPI() {
 			}
 			newStr := strings.Join(vList, " ")
 			log.Println("追加")
-			lineStr = newStr + " -H tcp://0.0.0.0:" + port
+			lineStr = newStr + s
 			log.Println(lineStr)
 		}
 
@@ -211,23 +246,4 @@ func OpenDockerAPI() {
 		log.Println("改名失败:", err)
 		return
 	}
-
-	//sudo systemctl daemon-reload
-	reloadStr := cmd.LinuxSendCommand("sudo systemctl daemon-reload")
-	log.Println("reloadStr : ", reloadStr)
-
-	//sudo systemctl restart docker
-	restartStr := cmd.LinuxSendCommand("sudo systemctl restart docker")
-	log.Println("reloadStr : ", restartStr)
-
-	//检查是否生效
-	//docker -H 0.0.0.0:12221 info
-	//没有 Cannot connect to the Docker daemo 则成功
-	testopen := cmd.LinuxSendCommand("docker -H 0.0.0.0:" + port + " info")
-	if t := strings.Contains(testopen, "Cannot connect to the Docker daemo"); t {
-		log.Println("docker Api 启动失败！")
-	} else {
-		log.Println("docker Api 启动成功！")
-	}
-
 }

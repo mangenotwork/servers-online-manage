@@ -70,9 +70,19 @@ func TestHaveDocker(t *testing.T) {
 	// isopen, url := DockerIsOpenAPI()
 	// t.Log(isopen, url)
 
-	OpenDockerAPI()
+	//OpenDockerAPI()
+	CloseDockerAPI()
 }
 
 func TestDockerAPI(t *testing.T) {
-	ImageList()
+	//data1,err := ImageList()
+	//t.Log(string(data1), err)
+
+	//ImageCreate()
+
+	//ImageSearch()
+
+	//ImageDelete()
+
+	Run1()
 }
