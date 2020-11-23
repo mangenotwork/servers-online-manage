@@ -69,6 +69,15 @@ func GetSystemUUID() string {
 	return cmd.LinuxSendCommand("sudo dmidecode -s system-uuid")
 }
 
+// 通过df 采样磁盘的基本
+func GetSystemDF() {
+	rStr := cmd.LinuxSendCommand("cat /proc/cpuinfo")
+	if rStr == "" {
+		return
+	}
+	log.Println(rStr)
+}
+
 // 从 /proc/cpuinfo 获取cpu相关信息
 func ProcCpuinfo() (cpuinfos []map[string]string) {
 	cpuinfos = make([]map[string]string, 0)

@@ -28,4 +28,7 @@ const (
 
 	//发送文件完成
 	SEND_FILE_COMPLETE_PACKET = 0x08
+
+	//请求docker images相关
+	Docker_Images = 0x09
 )

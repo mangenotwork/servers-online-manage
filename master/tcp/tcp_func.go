@@ -25,6 +25,19 @@ func SendData(c net.Conn, packet structs.Packet) {
 	c.Write(protocol.EnPackSendData(sendBytes))
 }
 
+//向客户端发送数据包
+func SendPacket(c net.Conn,s interface{},pactetType byte){
+	packetBytes, err := json.Marshal(s)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	packet := structs.Packet{
+		PacketType:   pactetType,
+		PacketContent: packetBytes,
+	}
+	SendData(c, packet)
+}
+
 //请求slve的host info
 func GetSlveInfo(conn net.Conn) {
 	log.Println("请求slve的host info")
@@ -165,4 +178,12 @@ func SendFile2(conn net.Conn, f multipart.File, fileSize int64, filename string)
 		PacketType: pk.SEND_FILE_COMPLETE_PACKET,
 	}
 	SendData(conn, packet)
+}
+
+//获取Slve Docker 镜像列表
+func GetDockerImages(conn net.Conn){
+	active := structs.DockerImagesAction{
+		Action: "get_images_list",
+	}
+	SendPacket(conn,active,pk.Docker_Images)
 }

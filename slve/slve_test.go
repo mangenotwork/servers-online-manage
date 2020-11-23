@@ -72,3 +72,7 @@ func TestHaveDocker(t *testing.T) {
 
 	OpenDockerAPI()
 }
+
+func TestDockerAPI(t *testing.T) {
+	ImageList()
+}

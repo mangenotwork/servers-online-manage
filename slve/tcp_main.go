@@ -117,7 +117,23 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 	case pk.SEND_FILE_COMPLETE_PACKET:
 		global.FilePackets = global.FilePackets[:0:0]
 		return
+
+		//请求docker images相关
+	case pk.Docker_Images:
+		var dockerImagesPacket structs.DockerImagesAction
+		json.Unmarshal(packet.PacketContent, &dockerImagesPacket)
+		log.Println("收到Action = ", dockerImagesPacket.Action)
+		data := Images(dockerImagesPacket.Action)
+		packetData := &structs.DockerImagesAction{
+			Action: dockerImagesPacket.Action,
+			Packet: data,
+		}
+		SendPackat(conn,packetData,pk.Docker_Images)
+		return
+
 	}
+
+
 
 }
 
@@ -135,4 +151,20 @@ func Str2Bytes(s string, packetType byte) []byte {
 		log.Println(err.Error())
 	}
 	return protocol.EnPackSendData(sendBytes)
+}
+
+func SendPackat(c net.Conn,s interface{},packetType byte) {
+	packetBytes, err := json.Marshal(s)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	packet := structs.Packet{
+		PacketType:    packetType,
+		PacketContent: packetBytes,
+	}
+	sendBytes, err := json.Marshal(packet)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	c.Write(protocol.EnPackSendData(sendBytes))
 }
