@@ -1,41 +1,9 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8" />
-	<title></title>
-	<!-- elementUI——css cdn -->
-	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-	<link rel="stylesheet" type="text/css" href="/static/public.css">
-	
-</head>
+<<template "_head.html">>
 
-<body style="margin: 0;">
-	
-	<div id="app" >
+<el-main class="main">
 
-		<el-container style="height: 100vh;">
-		    <el-aside width="200px" class="menu_aside">
-		    	<el-menu
-			      :default-active="menu.active"
-			      router:true
-			      class="el-menu-vertical-demo"
-			      @open="handleOpen"
-			      @select="handleOpen"
-			      @close="handleClose"
-			      background-color="#211b1f"
-			      text-color="#fff"
-			      active-text-color="#FBE11B">
-			      <el-menu-item>
-			        <span slot="title"> Man Ge </span>
-			      </el-menu-item>
-			      	<el-menu-item v-for="m in menu.list" :index="m.url">
-			        <i :class="`${m.i}`"></i>
-			        <span slot="title">{{m.name}}</span>
-			      	</el-menu-item>
-			    </el-menu>
-		    </el-aside>
-
-		    <el-main class="main">
 		    	<el-row :gutter="20" class="mb38">
 				  <el-col :span="6"><el-card shadow="hover"><div class="home_rk">
 				  	<h2>服务器： 4</h2>
@@ -100,7 +68,8 @@
 				</el-row>
 				
 
-		    </el-main>
+</el-main>
+
 
 		 <!--  <el-footer style="background-color: #000; " >aas</el-footer> -->
 		</el-container>
