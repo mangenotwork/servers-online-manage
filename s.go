@@ -14,6 +14,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/master/http"
 	"github.com/mangenotwork/servers-online-manage/master/tcp"
 	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/master/db"
 )
 
 func main() {
@@ -112,6 +113,8 @@ func InitConf() {
 	//给全局变量赋值
 	global.Version = masterconf.Version
 	global.MasterHost = masterconf.MasterHost
+
+	db.CheckSqlitDB(masterconf.SqlistDBFile)
 }
 
 //拿一串随机字符

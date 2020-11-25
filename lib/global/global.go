@@ -40,6 +40,9 @@ var (
 
 	//客户端创建的空间
 	SlveSpace = "/home/ManGe_Slve/"
+
+	//Master Sqlist DB file Path
+	SqlistDBPath = ""
 )
 
 //添加Slve

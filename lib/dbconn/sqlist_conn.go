@@ -2,3 +2,27 @@
 //使用 github.com/jinzhu/gorm
 
 package dbconn
+
+import (
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+	"log"
+)
+
+type Product struct {
+	gorm.Model
+	Code string
+	Price uint
+}
+
+func Conn() (db *gorm.DB){
+	var err error
+	db, err = gorm.Open("sqlite3", global.SqlistDBPath)
+	if err != nil {
+		log.Println(err)
+		log.Println("连接数据库失败")
+		return
+	}
+	return
+}

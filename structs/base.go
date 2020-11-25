@@ -99,6 +99,7 @@ type SlveBaseInfo struct {
 type MasterConf struct {
 	Version    string `json:"version"`
 	MasterHost string `json:"master_host"`
+	SqlistDBFile string `json:"sqlit_db_file"`
 }
 
 //Slve conf
