@@ -76,21 +76,23 @@ type Cli struct {
 //Slve 基本信息
 type SlveBaseInfo struct {
 	//取Slve的key
-	SlveKey string
+	SlveKey string `json:"key"`
 	//Master 颁发的Token
-	Token string
+	Token string `json:"token"`
 	//Host name
-	Name string
+	Name string `json:"host_name"`
 	//由Master设置的名称
-	SetName string
+	SetName string `json:"name"`
 	//客户端的ip(ip+port)
-	HostIP string
+	HostIP string `json:"host_ip"`
 	//系统平台
-	SysType string
+	SysType string `json:"sys_type"`
 	//系统架构
-	SysArchitecture string
+	SysArchitecture string `json:"sys_architecture"`
 	//Slve 客户端版本
-	SlveVersion string
+	SlveVersion string `json:"slve_version"`
+	//Conn Time 连接时间  XXXX-XX-XX XX:XX:XX 格式
+	ConnTime string `json:"conn_time"`
 }
 
 //Master conf

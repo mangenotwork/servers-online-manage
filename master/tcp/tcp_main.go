@@ -3,8 +3,10 @@ package tcp
 import (
 	"encoding/json"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
+	"github.com/mangenotwork/servers-online-manage/utils"
 	"log"
 	"strings"
+	"time"
 
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/structs"
@@ -27,6 +29,7 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		//获取slve， global.Slves[slveKey]
 		beatPacket.SlveKey = slveKey
 		beatPacket.HostIP = conn.Conn.RemoteAddr().String()
+		beatPacket.ConnTime = utils.DateTime(time.Now().Unix())
 		global.Slves[slveKey].SlveInfo = &beatPacket
 
 	//处理心跳

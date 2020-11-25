@@ -3,21 +3,24 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+
 	//"github.com/mangenotwork/servers-online-manage/lib/global"
 )
 
 //首页
 func PGHome (c *gin.Context) {
-	// slist := make([]string, 0)
-	// for k, _ := range global.Slves {
-	// 	slist = append(slist, k)
-	// }
 
-	// c.JSON(200, gin.H{
-	// 	"version": global.Version,
-	// 	"slves":   slist,
-	// })
-	c.HTML(200, "home.html", gin.H{})
+	//获取 host 连接的个数
+	connHostCount := global.SlveLen()
+	//获取 资产个数
+
+	//获取 警报与通知个数
+
+
+	c.HTML(200, "home.html", gin.H{
+		"conn_count":connHostCount,
+	})
 	return
 }
 

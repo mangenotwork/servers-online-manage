@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hash/crc32"
 	"io"
+	"strings"
 
 	"net"
 
@@ -55,6 +56,8 @@ func DePackSendDataMater(conn *structs.Cli, f func(*structs.Cli, *structs.Packet
 			//这里ReadByte方法返回一个io.EOF的错误，具体可考虑文档
 			if err == io.EOF {
 				fmt.Printf(" %s is close!\n", conn.Conn.RemoteAddr().String())
+				key := strings.Split(conn.Conn.RemoteAddr().String(),":")[0]
+				global.DelSlve(key)
 			}
 			//在这里直接退出goroutine，关闭由defer操作完成
 

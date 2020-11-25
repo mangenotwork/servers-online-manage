@@ -56,3 +56,17 @@ func PrintSlves() {
 	defer SlvesLock.RUnlock()
 	log.Println(Slves)
 }
+
+//返回 Slve 长度
+func SlveLen() int {
+	SlvesLock.RLock()
+	defer SlvesLock.RUnlock()
+	return len(Slves)
+}
+
+//删除 Slve
+func DelSlve(key string){
+	SlvesLock.RLock()
+	defer SlvesLock.RUnlock()
+	delete(Slves,key)
+}
