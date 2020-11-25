@@ -11,7 +11,7 @@ var Router *gin.Engine
 func Routers() *gin.Engine {
 
 	Router = gin.Default()
-
+	Router.Delims("<<", ">>")
 	//静态目录配置
 	// Router.Static("/static", "static")
 	// Router.Static("/install/static", "static")
@@ -25,6 +25,14 @@ func Routers() *gin.Engine {
 	{
 		Router.GET("/", handler.PGHome) //首页
 		Router.GET("/sendfilepg",handler.PGUploadFileTest)//上传文件页面
+		Router.GET("/home",handler.PGHome)
+		Router.GET("/host",handler.PGHostList)// 服务器
+		Router.GET("/property",handler.PGProperty)	// 资产
+		Router.GET("/release",handler.PGRelease)//部署
+		Router.GET("/alarm",handler.PGAlarm)//警报与通知
+		Router.GET("/settings",handler.PGSettings)//设置
+		Router.GET("/user",handler.PGUserManage)//账号管理
+		Router.GET("/help",handler.PGHelp)//帮助
 	}
 
 	//测试用的
@@ -76,7 +84,7 @@ func Routers() *gin.Engine {
 
 	//500
 	Router.NoRoute(func(ctx *gin.Context) {
-		ctx.String(http.StatusInternalServerError, "500", "")
+		ctx.String(http.StatusInternalServerError, "500")
 	})
 	return Router
 }
