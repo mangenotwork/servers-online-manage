@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
@@ -59,14 +61,15 @@ func RunMasterTCP() {
 		}
 
 		//新客户端连接写入Slves
-		global.AddSlve(conn.RemoteAddr().String(), newCli)
+		ip := strings.Split(conn.RemoteAddr().String(),":")[0]
+		global.AddSlve(ip, newCli)
 		//打印当前所有Slve
 		global.PrintSlves()
 
-		//客户端连接成功给他颁发一个名称
+		//客户端连接成功给他颁发一个Token
 		packet := structs.Packet{
 			PacketType:    pk.SET_SLVE_TOKEN_PACKET,
-			PacketContent: []byte("客户端连接成功给你颁发一个名称"),
+			PacketContent: []byte(getRandString()),
 		}
 		tcp.SendData(conn, packet)
 
@@ -109,4 +112,14 @@ func InitConf() {
 	//给全局变量赋值
 	global.Version = masterconf.Version
 	global.MasterHost = masterconf.MasterHost
+}
+
+//拿一串随机字符
+func getRandString() string {
+	length := rand.Intn(50)
+	strBytes := make([]byte, length)
+	for i := 0; i < length; i++ {
+		strBytes[i] = byte(rand.Intn(26) + 97)
+	}
+	return string(strBytes)
 }

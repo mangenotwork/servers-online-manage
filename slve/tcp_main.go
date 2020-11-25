@@ -21,10 +21,20 @@ var lock = &sync.Mutex{}
 func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 	switch packet.PacketType {
 
+	//接收服务端颁发的Token
 	case pk.SET_SLVE_TOKEN_PACKET:
-		//接收服务端颁发的名称
 		log.Println("接收服务端颁发的名称 : ", string(packet.PacketContent))
 		global.SlveToken = string(packet.PacketContent)
+		//回复Master的一包，包含基础信息
+		hostinfo := GetHostInfo()
+		packetData := &structs.SlveBaseInfo{
+			Token :global.SlveToken,
+			Name : hostinfo.HostName,
+			SysType : hostinfo.SysType,
+			SysArchitecture : hostinfo.SysArch,
+			SlveVersion : global.SlveVersion,
+		}
+		SendPackat(conn,packetData,pk.FIRST_PACKET)
 		return
 
 	case pk.REPLY_HEART_PACKET:

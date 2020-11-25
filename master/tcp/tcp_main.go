@@ -2,7 +2,9 @@ package tcp
 
 import (
 	"encoding/json"
+	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"log"
+	"strings"
 
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/structs"
@@ -14,6 +16,18 @@ import (
 func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 	//根据自定义的包类型进行不同业务的处理
 	switch packet.PacketType {
+
+	//Slve连接后的第一包
+	case pk.FIRST_PACKET:
+		//解析数据
+		var beatPacket structs.SlveBaseInfo
+		json.Unmarshal(packet.PacketContent, &beatPacket)
+		log.Println("beatPacket = ", &beatPacket)
+		slveKey := strings.Split(conn.Conn.RemoteAddr().String(),":")[0]
+		//获取slve， global.Slves[slveKey]
+		beatPacket.SlveKey = slveKey
+		beatPacket.HostIP = conn.Conn.RemoteAddr().String()
+		global.Slves[slveKey].SlveInfo = &beatPacket
 
 	//处理心跳
 	case pk.HEART_BEAT_PACKET:

@@ -65,8 +65,32 @@ type SendFilePacket struct {
 
 //客户端
 type Cli struct {
+	//连接对象
 	Conn  net.Conn
+	//接收数据的chan
 	Rdata chan interface{}
+	//客户端的基本信息
+	SlveInfo *SlveBaseInfo
+}
+
+//Slve 基本信息
+type SlveBaseInfo struct {
+	//取Slve的key
+	SlveKey string
+	//Master 颁发的Token
+	Token string
+	//Host name
+	Name string
+	//由Master设置的名称
+	SetName string
+	//客户端的ip(ip+port)
+	HostIP string
+	//系统平台
+	SysType string
+	//系统架构
+	SysArchitecture string
+	//Slve 客户端版本
+	SlveVersion string
 }
 
 //Master conf

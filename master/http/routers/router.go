@@ -38,6 +38,19 @@ func Routers() *gin.Engine {
 	//接口
 	API := Router.Group("/api")
 	{
+		//slve 相关的接口
+		SlveAPI_V1 := API.Group("/slve/v1")
+		{
+			SlveAPI_V1.GET("/ip/list", handler.GetSlveIPList)//获取当前连接 slve IP
+			SlveAPI_V1.GET("/list", handler.GetSlveList)//slve 列表, 包含了基本信息
+		}
+
+		//slve 信息相关的接口
+		SlveInfoAPI_v1 := API.Group("/slve/info/v1")
+		{
+			SlveInfoAPI_v1.GET("/ping/:slveId", handler.DockerImagesTest)
+		}
+
 		//docker 相关的接口
 		DockerAPI_V1 :=  API.Group("/docker/v1")
 		{
@@ -63,7 +76,7 @@ func Routers() *gin.Engine {
 
 	//500
 	Router.NoRoute(func(ctx *gin.Context) {
-		ctx.HTML(http.StatusInternalServerError, "500.html", "")
+		ctx.String(http.StatusInternalServerError, "500", "")
 	})
 	return Router
 }

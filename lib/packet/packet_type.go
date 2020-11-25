@@ -5,6 +5,9 @@ const (
 	//slve 发送心跳包
 	HEART_BEAT_PACKET = 0x00
 
+	//slve 连接成功收到token，返回的第一包
+	FIRST_PACKET = 0x99
+
 	//slve 发送数据包
 	REPORT_PACKET = 0x01
 

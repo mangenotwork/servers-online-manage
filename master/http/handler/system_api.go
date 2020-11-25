@@ -5,8 +5,38 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"github.com/mangenotwork/servers-online-manage/master/tcp"
+	"github.com/mangenotwork/servers-online-manage/structs"
 	"log"
 )
+
+//获取slve ip 列表
+func GetSlveIPList(c *gin.Context){
+	slist := make([]string, 0)
+	for k, _ := range global.Slves {
+		slist = append(slist, k)
+	}
+
+	c.JSON(200, gin.H{
+		"version": global.Version,
+		"slves":   slist,
+	})
+}
+
+//获取当前连接的slve 包含了基础信息
+func GetSlveList(c *gin.Context){
+
+	data := make([]*structs.SlveBaseInfo,0)
+
+	for k, v := range global.Slves {
+		log.Println("已经连接的客户端: ",k,&v.SlveInfo.Name)
+		data = append(data,v.SlveInfo)
+	}
+
+	c.JSON(200, gin.H{
+		"version": global.Version,
+		"slves":   data,
+	})
+}
 
 //获取slve host 信息
 func GetInfoTets(c *gin.Context){
