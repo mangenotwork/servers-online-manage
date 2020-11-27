@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hash/crc32"
 	"io"
+	"log"
 	"strings"
 
 	"net"
@@ -55,7 +56,7 @@ func DePackSendDataMater(conn *structs.Cli, f func(*structs.Cli, *structs.Packet
 			//这里因为做了心跳，所以就没有加deadline时间，如果客户端断开连接
 			//这里ReadByte方法返回一个io.EOF的错误，具体可考虑文档
 			if err == io.EOF {
-				fmt.Printf(" %s is close!\n", conn.Conn.RemoteAddr().String())
+				log.Println(" %s is close!\n", conn.Conn.RemoteAddr().String())
 				key := strings.Split(conn.Conn.RemoteAddr().String(),":")[0]
 				global.DelSlve(key)
 			}

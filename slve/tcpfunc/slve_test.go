@@ -1,4 +1,4 @@
-package tcp
+package tcpfunc
 
 import (
 	"testing"
@@ -71,8 +71,9 @@ func TestHaveDocker(t *testing.T) {
 	// t.Log(isopen, url)
 
 	//OpenDockerAPI()
-	CloseDockerAPI()
+	//CloseDockerAPI()
 }
+
 
 func TestDockerAPI(t *testing.T) {
 	//data1,err := ImageList()

@@ -1,6 +1,6 @@
 // 获取计算机的系统信息的实现
 // Linux
-package tcp
+package tcpfunc
 
 import (
 	"fmt"

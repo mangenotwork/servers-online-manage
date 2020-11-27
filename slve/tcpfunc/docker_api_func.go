@@ -1,6 +1,6 @@
 // docker Remote api 对应的功能实现
 // 这里我简述为 通过http 操作 docker
-package tcp
+package tcpfunc
 
 import (
 	"fmt"

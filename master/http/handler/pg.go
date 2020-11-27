@@ -26,6 +26,9 @@ func PGHome (c *gin.Context) {
 
 // 服务器
 func PGHostList(c *gin.Context) {
+
+	//获取服务列表
+
 	c.HTML(200, "host_list.html", gin.H{})
 	return
 }

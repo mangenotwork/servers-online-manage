@@ -1,4 +1,4 @@
-package tcp
+package handler
 
 import (
 	"encoding/json"
@@ -13,6 +13,7 @@ import (
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
+	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc"
 )
 
 var lock = &sync.Mutex{}
@@ -26,7 +27,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		log.Println("接收服务端颁发的名称 : ", string(packet.PacketContent))
 		global.SlveToken = string(packet.PacketContent)
 		//回复Master的一包，包含基础信息
-		hostinfo := GetHostInfo()
+		hostinfo := tcpfunc.GetHostInfo()
 		packetData := &structs.SlveBaseInfo{
 			Token :global.SlveToken,
 			Name : hostinfo.HostName,
@@ -44,7 +45,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 	//返回slve信息给master
 	case pk.Get_SLVE_INFO_PACKET:
 		log.Println("返回slve信息给master ")
-		hostinfo := GetHostInfo()
+		hostinfo := tcpfunc.GetHostInfo()
 		packetBytes, err := json.Marshal(hostinfo)
 		if err != nil {
 			log.Println(err.Error())
@@ -133,7 +134,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		var dockerImagesPacket structs.DockerImagesAction
 		json.Unmarshal(packet.PacketContent, &dockerImagesPacket)
 		log.Println("收到Action = ", dockerImagesPacket.Action)
-		data,err := Images(dockerImagesPacket.Action)
+		data,err := tcpfunc.Images(dockerImagesPacket.Action)
 		packetData := &structs.DockerImagesAction{
 			Action: dockerImagesPacket.Action,
 			Packet: data,
