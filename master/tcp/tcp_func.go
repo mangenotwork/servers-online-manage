@@ -13,7 +13,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
-	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 )
 
 //向客户端发送数据

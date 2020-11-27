@@ -1,5 +1,5 @@
 // linux平台上的docker相关的命令，文件内容等操作
-package slve
+package tcp
 
 import (
 	"bufio"
@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/mangenotwork/servers-online-manage/lib/cmd"
-	"github.com/mangenotwork/servers-online-manage/utils"
+	"github.com/mangenotwork/servers-online-manage/lib/utils"
 )
 
 //host 是否安装docker

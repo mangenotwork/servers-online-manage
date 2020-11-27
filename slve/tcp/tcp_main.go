@@ -1,4 +1,4 @@
-package slve
+package tcp
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
-	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 )
 
 var lock = &sync.Mutex{}

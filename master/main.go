@@ -13,7 +13,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
 	"github.com/mangenotwork/servers-online-manage/master/http"
 	"github.com/mangenotwork/servers-online-manage/master/tcp"
-	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 	"github.com/mangenotwork/servers-online-manage/master/db"
 )
 

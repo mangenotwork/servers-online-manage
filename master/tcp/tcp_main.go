@@ -3,13 +3,13 @@ package tcp
 import (
 	"encoding/json"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
-	"github.com/mangenotwork/servers-online-manage/utils"
+	"github.com/mangenotwork/servers-online-manage/lib/utils"
 	"log"
 	"strings"
 	"time"
 
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
-	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 )
 
 //Master接收的具体业务

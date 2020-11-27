@@ -4,8 +4,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
-
-	//"github.com/mangenotwork/servers-online-manage/lib/global"
+	"github.com/mangenotwork/servers-online-manage/master/http/dao"
 )
 
 //首页
@@ -16,10 +15,11 @@ func PGHome (c *gin.Context) {
 	//获取 资产个数
 
 	//获取 警报与通知个数
-
+	notifincation := new(dao.NotificationDao).PendingCount()
 
 	c.HTML(200, "home.html", gin.H{
 		"conn_count":connHostCount,
+		"notifincation_count":notifincation,
 	})
 	return
 }

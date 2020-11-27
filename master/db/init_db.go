@@ -33,7 +33,8 @@ func CheckSqlitDB(dbFile string) bool {
 	defer db.Close()
 	log.Println("db conn -> ", db)
 
-	//检查database
+	//检查table
+	//如果没有就创建
 	if  !db.HasTable(&models.Notifincation{}){
 		log.Println("Notifincation 不存在")
 		db.Set("gorm:notifincation", "ENGINE=InnoDB").CreateTable(&models.Notifincation{})
@@ -42,6 +43,7 @@ func CheckSqlitDB(dbFile string) bool {
 		log.Println("SeleveConnLog 不存在")
 		db.Set("gorm:slve_conn_log", "ENGINE=InnoDB").CreateTable(&models.SlveConnLog{})
 	}
+	//如果没有用户表，则创建，并生成root admin 账号，密码随机生成并生成一个txt在根目录下
 
 	return true
 }

@@ -1,6 +1,6 @@
 // 获取计算机的系统信息的实现
 // Linux
-package slve
+package tcp
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/mangenotwork/servers-online-manage/lib/cmd"
-	"github.com/mangenotwork/servers-online-manage/structs"
-	"github.com/mangenotwork/servers-online-manage/utils"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/utils"
 )
 
 //获取本机ip
@@ -694,3 +694,18 @@ status — 与stat所提供信息类似，但可读性较好，如下所示，�
 /proc/zoneinfo
 内存区域（zone）的详细信息列表，信息量较大，
 */
+
+//获取网卡Mac
+func GetNotCardMAC(){
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		log.Println("Error:" + err.Error())
+		return
+	}
+	for _, inter := range interfaces {
+		log.Println(inter.Name)
+		log.Println(inter.Index)
+		log.Println(inter.HardwareAddr)
+	}
+
+}

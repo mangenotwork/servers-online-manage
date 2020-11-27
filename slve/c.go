@@ -11,8 +11,8 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
-	"github.com/mangenotwork/servers-online-manage/slve"
-	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/slve/tcp"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 )
 
 func main() {
@@ -46,7 +46,7 @@ Reconnection:
 	}
 
 	//启动接收,并执行slve的业务
-	go protocol.DePackSendData(client.Connection, slve.SlveTcpFunc)
+	go protocol.DePackSendData(client.Connection, tcp.SlveTcpFunc)
 
 	//发送心跳的goroutine
 	go func() {
@@ -133,9 +133,9 @@ func SendHeartPacket(client *structs.TcpClient) {
 	heartPacket := structs.HeartPacket{
 		Version:   global.SlveVersion,
 		SlveId:    global.SlveToken,
-		IP:        slve.GetMyIP(),
-		System:    slve.GetSysType(),
-		HostName:  slve.GetHostName(),
+		IP:        tcp.GetMyIP(),
+		System:    tcp.GetSysType(),
+		HostName:  tcp.GetHostName(),
 		UseCPU:    "28%",
 		UseMEM:    "28%",
 		Timestamp: time.Now().Unix(),

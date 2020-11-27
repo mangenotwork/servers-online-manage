@@ -4,7 +4,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 )
 
 var (

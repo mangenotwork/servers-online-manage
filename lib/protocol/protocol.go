@@ -11,7 +11,7 @@ import (
 	"net"
 
 	"github.com/mangenotwork/servers-online-manage/lib/global"
-	"github.com/mangenotwork/servers-online-manage/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 )
 
 //通过协议 编码数据

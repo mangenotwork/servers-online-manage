@@ -1,4 +1,4 @@
-package slve
+package tcp
 
 import (
 	"testing"

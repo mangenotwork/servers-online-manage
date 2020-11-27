@@ -10,12 +10,6 @@ import (
 	"log"
 )
 
-type Product struct {
-	gorm.Model
-	Code string
-	Price uint
-}
-
 func Conn() (db *gorm.DB){
 	var err error
 	db, err = gorm.Open("sqlite3", global.SqlistDBPath)
