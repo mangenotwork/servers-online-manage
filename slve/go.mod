@@ -14,7 +14,7 @@ require (
 	github.com/containerd/containerd v1.4.2 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
-	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/mangenotwork/servers-online-manage/lib v0.0.0-00010101000000-000000000000

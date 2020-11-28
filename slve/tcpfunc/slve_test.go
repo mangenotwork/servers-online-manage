@@ -86,4 +86,5 @@ func TestDockerAPI(t *testing.T) {
 	//ImageDelete()
 
 	Run1()
+
 }
