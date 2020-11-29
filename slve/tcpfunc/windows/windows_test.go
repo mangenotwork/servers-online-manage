@@ -5,12 +5,19 @@ import (
 )
 
 func TestGetCPUUse(t *testing.T) {
-	a := GetCPUUse()
-	t.Log(a)
+	//a := GetCPUUse()
+	//t.Log(a)
+	//
+	//a2 := GetComputerName()
+	//t.Log(a2)
+	//
+	//a3 := GetEnvironment("PATH")
+	//t.Log(a3)
 
-	a2 := GetComputerName()
-	t.Log(a2)
+	//GetSystemInfo()
+	//RunMetrics()
 
-	a3 := GetEnvironment("PATH")
-	t.Log(a3)
+	//GETSystemPowerStatus()
+
+	WindowsGetUserDefaultLangID()
 }

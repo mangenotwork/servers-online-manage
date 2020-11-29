@@ -83,8 +83,60 @@ char* GetEnvironment(char *input)
  	GetEnvironmentVariableA(input,EnvironmentStr,size);
     return EnvironmentStr;
 }
+
+
+//取得与底层硬件平台有关的信息
+SYSTEM_INFO WindowsGetSystemInfo()
+{
+	SYSTEM_INFO SystemInfo;
+	GetSystemInfo(&SystemInfo);
+	return SystemInfo;
+}
+
+//获得与当前系统电源状态有关的信息。对便携式计算机来说，这些信息特别有用。
+//在那些地方，可用这个函数了解有关电源和电池组的情况
+SYSTEM_POWER_STATUS GETSystemPowerStatus()
+{
+	SYSTEM_POWER_STATUS lpSystemPowerStatus;
+	int a;
+	a = GetSystemPowerStatus(&lpSystemPowerStatus);
+	printf("%d",a);
+	return lpSystemPowerStatus;
+}
+
+//用于获取自windows启动以来经历的时间长度（毫秒）
+long GET_TickCount(){
+	long a;
+	a = GetTickCount();
+	return a;
+}
+
+//在一个TIME_ZONE_INFORMATION结构中载入与系统时区设置有关的信息
+//http://www.office-cn.net/t/api/gettimezoneinformation.htm
+
+//为当前用户取得默认语言ID
+long WindowsGetUserDefaultLangID(){
+	long a;
+	a = GetUserDefaultLangID();
+	return a;
+}
+
+//取得当前用户的默认“地方”设置
+//http://www.office-cn.net/t/api/getuserdefaultlcid.htm
+
+//取得当前用户的名字
+//http://www.office-cn.net/t/api/getusername.htm
+
+//判断当前运行的Windows和DOS版本
+//http://www.office-cn.net/t/api/getversion.htm
+
+
 */
 import "C"
+import (
+	"fmt"
+	"log"
+)
 
 //获取cpu使用率
 func GetCPUUse() int {
@@ -126,4 +178,63 @@ func GetComputerName() string {
 func GetEnvironment(input string) string{
 	cs := C.CString(input)
 	return C.GoString(C.GetEnvironment(cs))
+}
+
+//取得与底层硬件平台有关的信息
+func GetSystemInfo(){
+	a := C.WindowsGetSystemInfo()
+	log.Println(a)
+	// http://www.office-cn.net/t/api/system_info.htm
+	log.Println(a.dwPageSize)
+	//fmt.Println(a.dwOemID)
+	log.Println(a.lpMinimumApplicationAddress)
+	log.Println(a.lpMaximumApplicationAddress)
+	log.Println(a.dwActiveProcessorMask)
+	//fmt.Println(a.dwNumberOrfProcessors)
+	log.Println(a.dwProcessorType)
+	log.Println(a.dwAllocationGranularity)
+	log.Println(a.wProcessorLevel)
+	log.Println(a.wProcessorRevision)
+}
+
+func GETSystemPowerStatus(){
+	a := C.GETSystemPowerStatus()
+
+	fmt.Println(a)
+
+	//ACLineStatus   交流电源状态
+	//0  Offline
+	//1		Online
+	//255    Unknown status
+	fmt.Println(a.ACLineStatus)
+
+	//BatteryFlag   电池充电状态。 可以包含一或多个以下值
+	// 1	高，电量大于66%
+	// 2	低，小于33%
+	// 4	极低，小于5%
+	// 8	充电中
+	// 128	没有电池
+	// 255	未知，无法读取状态
+	fmt.Println(a.BatteryFlag)
+
+	//Reserved1   保留，必须为0
+	fmt.Println(a.Reserved1)
+
+	//BatteryLifeTime    秒为单位的电池剩余电量, 若未知则为-1
+	fmt.Println(a.BatteryLifeTime)
+
+	//BatteryFullLifeTime   秒为单位的电池充满电的电量，若未知则为-1
+	fmt.Println(a.BatteryFullLifeTime)
+}
+
+//用于获取自windows启动以来经历的时间长度（毫秒）
+func GET_TickCount(){
+	a := C.GET_TickCount()
+	log.Println(a)
+}
+
+//为当前用户取得默认语言ID
+func WindowsGetUserDefaultLangID(){
+	a := C.WindowsGetUserDefaultLangID()
+	log.Println(a)
 }
