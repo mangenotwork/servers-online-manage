@@ -130,6 +130,37 @@ long WindowsGetUserDefaultLangID(){
 //判断当前运行的Windows和DOS版本
 //http://www.office-cn.net/t/api/getversion.htm
 
+//设置新的计算机名
+long WindowsSetComputerName(char *input){
+	long a;
+	a = SetComputerNameA(input);
+	return a;
+}
+
+//设置当前系统时间
+long WindowsSetSystemTime(){
+	int val=0;
+    SYSTEMTIME system_time = {0};
+
+	//先获取本地时间
+    GetLocalTime(&system_time);
+
+	//只修改年和月份
+    system_time.wYear = 1988;
+    system_time.wMonth = 8;
+
+    val = SetLocalTime(&system_time);
+
+	if(val == 0){
+        printf("设置本地时间失败！\n");
+    }
+    else{
+		printf("设置本地时间成功！\n");
+	}
+
+	return val;
+}
+
 
 */
 import "C"
@@ -141,6 +172,7 @@ import (
 //获取cpu使用率
 func GetCPUUse() int {
 	return int(C.cpu())
+
 }
 
 //获取计算机名称
@@ -238,3 +270,10 @@ func WindowsGetUserDefaultLangID(){
 	a := C.WindowsGetUserDefaultLangID()
 	log.Println(a)
 }
+
+
+//获取 cpu型号
+
+//获取 windows系统型号
+
+//获取 内存大小

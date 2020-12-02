@@ -56,9 +56,12 @@ func SysInfo() {
 
 //获取host的基本信息
 func GetHostInfo() *structs.HostInfo {
+	sysType := runtime.GOOS
+	//获取cpu信息
+
 	return &structs.HostInfo{
 		HostName:      GetHostName(),
-		SysType:       runtime.GOOS,
+		SysType:       sysType,
 		SysArch:       runtime.GOARCH,
 		CpuCoreNumber: fmt.Sprintf("cpu 核心数: %d", runtime.GOMAXPROCS(0)),
 	}

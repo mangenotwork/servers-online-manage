@@ -7,9 +7,8 @@ import (
 	"hash/crc32"
 	"io"
 	"log"
-	"strings"
-
 	"net"
+	"strings"
 
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
@@ -52,14 +51,17 @@ func DePackSendDataMater(conn *structs.Cli, f func(*structs.Cli, *structs.Packet
 	//状态机处理数据
 	for {
 		recvByte, err := bufferReader.ReadByte()
+
 		if err != nil {
+			log.Println("err or close = ", err)
 			//这里因为做了心跳，所以就没有加deadline时间，如果客户端断开连接
 			//这里ReadByte方法返回一个io.EOF的错误，具体可考虑文档
 			if err == io.EOF {
 				log.Println(" %s is close!\n", conn.Conn.RemoteAddr().String())
-				key := strings.Split(conn.Conn.RemoteAddr().String(),":")[0]
-				global.DelSlve(key)
+
 			}
+			key := strings.Split(conn.Conn.RemoteAddr().String(),":")[0]
+			global.DelSlve(key)
 			//在这里直接退出goroutine，关闭由defer操作完成
 
 			return
@@ -164,7 +166,7 @@ func DePackSendData(conn net.Conn, f func(net.Conn, *structs.Packet)) {
 			return
 		}
 
-		//log.Println("状态机状态 = ", state)
+		//log.Println("状态机状态 = ", recvByte)
 
 		//进入状态机，根据不同的状态来处理
 		switch state {

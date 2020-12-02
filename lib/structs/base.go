@@ -93,6 +93,8 @@ type SlveBaseInfo struct {
 	SlveVersion string `json:"slve_version"`
 	//Conn Time 连接时间  XXXX-XX-XX XX:XX:XX 格式
 	ConnTime string `json:"conn_time"`
+	//CPU核心数
+	CpuCoreNumber string `json:"cpu_core_number"`
 }
 
 //Master conf

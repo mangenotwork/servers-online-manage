@@ -19,5 +19,14 @@ func TestGetCPUUse(t *testing.T) {
 
 	//GETSystemPowerStatus()
 
-	WindowsGetUserDefaultLangID()
+	//WindowsGetUserDefaultLangID()
+
+	c1 := GetCpuVendorId()
+	t.Log(c1)
+
+	c2 := GetCpuId()
+	t.Log(c2)
+
+	c3 := GetCpuName()
+	t.Log(c3)
 }

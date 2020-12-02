@@ -34,6 +34,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 			SysType : hostinfo.SysType,
 			SysArchitecture : hostinfo.SysArch,
 			SlveVersion : global.SlveVersion,
+			CpuCoreNumber: hostinfo.CpuCoreNumber,
 		}
 		SendPackat(conn,packetData,pk.FIRST_PACKET)
 		return
