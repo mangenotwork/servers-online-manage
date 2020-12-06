@@ -68,3 +68,38 @@ func GetHostInfo() *structs.HostInfo {
 		CpuCoreNumber: fmt.Sprintf("cpu 核心数: %d", runtime.GOMAXPROCS(0)),
 	}
 }
+
+//获取网卡信息
+func GetNetInfo() error{
+	intf, err := net.Interfaces()
+	if err != nil {
+		log.Fatal("get network info failed: %v", err)
+		return err
+	}
+	for _,v := range intf{
+		log.Println("最大传输单元 = ",v.MTU)
+		log.Println("Name = ",v.Name)
+		log.Println("硬件地址 = ", v.HardwareAddr)
+		log.Println("接口的属性 = ", v.Flags)
+		/*
+		"up",  接口在活动状态
+			"broadcast",   接口支持广播
+			"loopback",  接口是环回的
+			"pointtopoint",  接口是点对点的
+			"multicast",  接口支持组播
+		 */
+		ips, err := v.Addrs()
+		if err != nil {
+			log.Fatal("get network addr failed: %v", err)
+			return err
+		}
+		log.Println("ips = ", ips)
+		mips, err := v.MulticastAddrs()
+		if err != nil {
+			log.Fatal("get network addr failed: %v", err)
+			return err
+		}
+		log.Println("mips = ", mips)
+	}
+	return nil
+}

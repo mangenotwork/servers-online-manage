@@ -1,6 +1,5 @@
 ## TODO List
 - Windows 网络IO
-- Windows 网卡信息
 - Windows 磁盘IO
 - Slve 资源信息采集
 - Slve 传递资源信息
@@ -21,4 +20,8 @@
 4. 断开从连
 5. 创建执行空间
 6. Sqlist 数据库初始化与创建表
-
+7. 网卡信息
+8. Windows CPU 信息
+9. Windows CPU 使用率
+10. Windows 系统基本信息
+11. Windows 磁盘&内存信息
