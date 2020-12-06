@@ -62,3 +62,13 @@ func Num2Int64(s string) int64 {
 	}
 	return int64num
 }
+
+//数字类字符串 转 int
+func Num2Int(s string) int {
+	innum,err :=  strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	return innum
+}
+

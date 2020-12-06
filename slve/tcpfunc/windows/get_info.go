@@ -161,12 +161,29 @@ long WindowsSetSystemTime(){
 	return val;
 }
 
+//获取windows系统版本号相关信息
+OSVERSIONINFO GetOsInfo()
+{
+    OSVERSIONINFO osver = {sizeof(OSVERSIONINFO)};
+    GetVersionEx(&osver);
+    return osver;
+}
+
+//获取内存信息
+MEMORYSTATUSEX GetMemoryInfo()
+{
+    MEMORYSTATUSEX statusex;
+    statusex.dwLength = sizeof(statusex);
+    GlobalMemoryStatusEx(&statusex);
+    return statusex;
+}
 
 */
 import "C"
 import (
 	"fmt"
 	"log"
+	"github.com/mangenotwork/servers-online-manage/lib/cmd"
 )
 
 //获取cpu使用率
@@ -271,9 +288,42 @@ func WindowsGetUserDefaultLangID(){
 	log.Println(a)
 }
 
-
-//获取 cpu型号
-
 //获取 windows系统型号
+func WindowsGetOsInfo(){
+	osinfo := C.GetOsInfo()
+	buildNumber := osinfo.dwBuildNumber
+	osName := "Windows ?"
+	versionNumber := fmt.Sprintf("%d.%d",osinfo.dwMajorVersion,osinfo.dwMinorVersion)
+	switch versionNumber {
+	case "6.2":
+		osName = "Windows 10/Servers-2012"
+	case "6.1":
+		osName = "Windows 7/Servers-2008-R2"
+	case "6.0":
+		osName = "Windows Vista/Servers-2008"
+	case "5.2":
+		osName = "Windows XP-x64/Servers-2003"
+	case "5.1":
+		osName = "Windows XP"
+	case "5.0":
+		osName = "Windows 2000"
+	}
+	fmt.Println("Name  = ", osName)
+	fmt.Println("versionNumber  = ", versionNumber)
+	fmt.Println("BuildNumber  = ", buildNumber)
+}
 
 //获取 内存大小
+func WindowsGetMemoryInfo(){
+	mem := C.GetMemoryInfo()
+	fmt.Println("内存占用率 = ", mem.dwMemoryLoad)
+	fmt.Println("总物理内存 = ", mem.ullTotalPhys/1024/1024," MB" )
+	fmt.Println("闲置物理内存 = ", mem.ullAvailPhys/1024/1024, " MB")
+}
+
+//获取主板ID
+func GetBaseBoardID(){
+	cmds := []string{"wmic", "baseboard", "get", "serialnumber"}
+	boardId := cmd.WindowsSendCommand(cmds)
+	log.Println(boardId)
+}

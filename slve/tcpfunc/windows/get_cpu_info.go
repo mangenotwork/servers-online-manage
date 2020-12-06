@@ -247,7 +247,8 @@ char* WindowsGetCpuName(){
 	get_cpu_name(name);
 	return name;
 }
- */
+
+*/
 import "C"
 func GetCpuVendorId() string{
 	return C.GoString(C.WindowsGetCpuVendorId())
@@ -258,5 +259,6 @@ func GetCpuId() string {
 }
 
 func GetCpuName() string {
+
 	return C.GoString(C.WindowsGetCpuName())
 }
