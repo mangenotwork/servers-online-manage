@@ -1,6 +1,8 @@
-package windows
-
 /*
+    获取windows 系统的相关信息
+    原理: GetSystemMetrics
+*/
+
 #include <windows.h>
 #include <stdio.h>
 
@@ -208,13 +210,15 @@ int GET_CXMINTRACK(){
 }
 
 //屏幕大小
-int GET_CXSCREEN(){
+char* GET_CXSCREEN(){
+    char *xy = (char *) malloc(100);
 	int x,y;
 	x = GetSystemMetrics(SM_CXSCREEN);
 	y = GetSystemMetrics(SM_CYSCREEN);
 	printf("%d \n",x);
 	printf("%d \n",y);
-	return 0;
+    sprintf(xy,"%d x %d xp", x, y);
+	return xy;
 }
 
 //标题栏位图的大小
@@ -401,19 +405,4 @@ int GET_SWAPBUTTON(){
 	a = GetSystemMetrics(SM_SWAPBUTTON);
 	printf("%d \n",a);
 	return 0;
-}
-*/
-import "C"
-
-import (
-	_ "fmt"
-)
-
-
-func RunMetrics() {
-
-	// a := C.GET_CLEANBOOT()
-	// fmt.Println(a)
-
-	C.GET_DEBUG()
 }

@@ -6,42 +6,48 @@ import (
 )
 
 func TestGetCPUUse(t *testing.T) {
-	//a := GetCPUUse()
-	//t.Log(a)
+
 	//
-	//a2 := GetComputerName()
-	//t.Log(a2)
-	//
-	//a3 := GetEnvironment("PATH")
-	//t.Log(a3)
+	a2 := GetComputerName()
+	t.Log(a2)
 
-	//GetSystemInfo()
-	//RunMetrics()
+	a3 := GetEnvironment("PATH")
+	t.Log(a3)
 
-	//GETSystemPowerStatus()
+	GetSystemInfo()
 
-	//WindowsGetUserDefaultLangID()
+	GETSystemPowerStatus()
 
-	//c1 := GetCpuVendorId()
-	//t.Log(c1)
-	//
-	//c2 := GetCpuId()
-	//t.Log(c2)
-	//
-	//c3 := GetCpuName()
-	//t.Log(c3)
+	WindowsGetUserDefaultLangID()
 
-	//WindowsGetOsInfo()
-	//WindowsGetMemoryInfo()
-	//GetBaseBoardID()
+	c1 := GetCpuVendorId()
+	t.Log(c1)
+
+	c2 := GetCpuId()
+	t.Log(c2)
+
+	c3 := GetCpuName()
+	t.Log(c3)
+
+	a := GetCPUUse()
+	t.Log(a)
+
+	c4 := RunMetrics()
+	t.Log(c4)
+
+
+	WindowsGetOsInfo()
+	WindowsGetMemoryInfo()
+	GetBaseBoardID()
+
 	WindowsGetDiskCount()
 	WindowsGetDiskNameList()
 
 	WindowsGetDiskType(`C:\`)
 	WindowsGetDiskUse(`C:\`)
 
-	a := WindowsGetDiskInfo()
-	for _,v := range a{
+	d1 := WindowsGetDiskInfo()
+	for _,v := range d1{
 		t.Log(v)
 		t.Log(*v.DistUse)
 	}
