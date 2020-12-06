@@ -87,14 +87,11 @@ type SlveBaseInfo struct {
 	HostIP string `json:"host_ip"`
 	//系统平台
 	SysType string `json:"sys_type"`
-	//系统架构
-	SysArchitecture string `json:"sys_architecture"`
 	//Slve 客户端版本
 	SlveVersion string `json:"slve_version"`
 	//Conn Time 连接时间  XXXX-XX-XX XX:XX:XX 格式
 	ConnTime string `json:"conn_time"`
-	//CPU核心数
-	CpuCoreNumber string `json:"cpu_core_number"`
+	SysInfo RetuenSysInfos `json:"sys_info"`
 }
 
 //Master conf

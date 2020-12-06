@@ -3,10 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/mangenotwork/servers-online-manage/lib/cmd"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
@@ -27,21 +29,21 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 	case pk.SET_SLVE_TOKEN_PACKET:
 		log.Println("接收服务端颁发的名称 : ", string(packet.PacketContent))
 		global.SlveToken = string(packet.PacketContent)
-		//回复Master的一包，包含基础信息
+		//回复Master的一包，包含所有信息
 		hostinfo := sys2go.GetHostInfo()
+		sysinfo := tcpfunc.SysInfos()
 		packetData := &structs.SlveBaseInfo{
 			Token :global.SlveToken,
 			Name : hostinfo.HostName,
 			SysType : hostinfo.SysType,
-			SysArchitecture : hostinfo.SysArch,
+			SysInfo: sysinfo,
 			SlveVersion : global.SlveVersion,
-			CpuCoreNumber: hostinfo.CpuCoreNumber,
 		}
 		SendPackat(conn,packetData,pk.FIRST_PACKET)
 		return
 
 	case pk.REPLY_HEART_PACKET:
-		log.Println("接收心跳包的回复 : ", string(packet.PacketContent))
+		log.Println("Master 回复 : ", string(packet.PacketContent))
 		return
 
 	//返回slve信息给master
@@ -181,4 +183,70 @@ func SendPackat(c net.Conn,s interface{},packetType byte) {
 		log.Println(err.Error())
 	}
 	c.Write(protocol.EnPackSendData(sendBytes))
+}
+
+
+//发送心跳包，与发送数据包一样
+//心跳包包含了当前slve的 资源使用情况
+func SendHeartPacket(client *structs.TcpClient) {
+	heartPacket := structs.HeartPacket{
+		Version:   global.SlveVersion,
+		SlveId:    global.SlveToken,
+		IP:        sys2go.GetMyIP(),
+		System:    sys2go.GetSysType(),
+		HostName:  sys2go.GetHostName(),
+		UseCPU:    "28%",
+		UseMEM:    "28%",
+		Timestamp: time.Now().Unix(),
+	}
+	packetBytes, err := json.Marshal(heartPacket)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	packet := structs.Packet{
+		PacketType:    pk.HEART_BEAT_PACKET,
+		PacketContent: packetBytes,
+	}
+	sendBytes, err := json.Marshal(packet)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	client.Connection.Write(protocol.EnPackSendData(sendBytes))
+}
+
+//拿一串随机字符
+func getRandString() string {
+	length := rand.Intn(50)
+	strBytes := make([]byte, length)
+	for i := 0; i < length; i++ {
+		strBytes[i] = byte(rand.Intn(26) + 97)
+	}
+	return string(strBytes)
+}
+
+
+//发送数据包
+//仔细看代码其实这里做了两次json的序列化，有一次其实是不需要的
+func sendReportPacket(client *structs.TcpClient) {
+	reportPacket := structs.ReportPacket{
+		Content:   getRandString(),
+		Timestamp: time.Now().Unix(),
+		Rand:      rand.Int(),
+	}
+	packetBytes, err := json.Marshal(reportPacket)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	//这一次其实可以不需要，在封包的地方把类型和数据传进去即可
+	packet := structs.Packet{
+		PacketType:    pk.REPORT_PACKET,
+		PacketContent: packetBytes,
+	}
+	sendBytes, err := json.Marshal(packet)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	//发送
+	client.Connection.Write(protocol.EnPackSendData(sendBytes))
+	//log.Println("Send metric data success!")
 }

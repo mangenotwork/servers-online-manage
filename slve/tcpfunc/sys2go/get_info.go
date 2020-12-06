@@ -25,6 +25,11 @@ func GetSysType() string {
 	return runtime.GOOS
 }
 
+//获取系统架构
+func GetSysArch() string {
+	return runtime.GOARCH
+}
+
 //获取host 命名
 func GetHostName() string {
 	name, err := os.Hostname()
@@ -32,6 +37,11 @@ func GetHostName() string {
 		name = "null"
 	}
 	return name
+}
+
+//获取cpu核心数
+func GetCpuCoreNumber() string {
+ return fmt.Sprintf("%d核", runtime.GOMAXPROCS(0))
 }
 
 //获取系统信息

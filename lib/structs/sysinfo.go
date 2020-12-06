@@ -75,3 +75,43 @@ type ProcNetDevData struct {
 	Recv int64
 	Send int64
 }
+
+//磁盘信息
+type DiskInfo struct {
+	DiskName string
+	DistType string
+	DistTotalMB string
+	DistUse *DiskUseInfo
+}
+
+//磁盘使用的信息
+type DiskUseInfo struct {
+	Total int //MB
+	Free int //MB
+	Rate float32 //%
+}
+
+//返回的系统类型结构
+type RetuenSysInfos struct {
+	//系统平台
+	SysType string `json:"sys_type"`
+	//系统版本 os_name+版号
+	OsName string `json:"os_name"`
+	//系统架构
+	SysArchitecture string `json:"sys_architecture"`
+	//CPU核心数
+	CpuCoreNumber string `json:"cpu_core_number"`
+	//CPU name
+	CpuName string `json:"cpu_name"`
+	//CPU ID
+	CpuID string `json:"cpu_id"`
+	//主板ID
+	BaseBoardID string `json:"board_id"`
+	//内存总大小 MB
+	MemTotal string `json:"mem_totle"`
+	//磁盘信息
+	Disk []*DiskInfo `json:"disk"`
+	//磁盘总大小 MB
+	DiskTotal string `json:"disk_totle"`
+
+}

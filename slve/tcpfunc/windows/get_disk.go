@@ -7,6 +7,7 @@ import "C"
 
 import (
 	"fmt"
+	"github.com/mangenotwork/servers-online-manage/lib/structs"
 	"unsafe"
 	"strings"
 
@@ -23,21 +24,6 @@ var DiskType = map[int]string{
 	5:"网络磁盘",
 	6:"光驱",
 	7:"内存映射盘",
-}
-
-//磁盘信息
-type DiskInfo struct {
-	DiskName string
-	DistType string
-	DistTotalMB string
-	DistUse *DiskUseInfo
-}
-
-//磁盘使用的信息
-type DiskUseInfo struct {
-	Total int //MB
-	Free int //MB
-	Rate float32 //%
 }
 
 //返回磁盘数量
@@ -77,8 +63,8 @@ func WindowsGetDiskType(diskName string) string {
 }
 
 //更具磁盘名获取磁盘使用信息
-func WindowsGetDiskUse(diskName string) (diskUse *DiskUseInfo) {
-	diskUse = &DiskUseInfo{}
+func WindowsGetDiskUse(diskName string) (diskUse *structs.DiskUseInfo) {
+	diskUse = &structs.DiskUseInfo{}
 	cs := C.CString(diskName)
 	rc := C.GoString(C.GetDrivesFreeSpace(cs))
 	fmt.Println(rc)
@@ -101,14 +87,14 @@ func WindowsGetDiskUse(diskName string) (diskUse *DiskUseInfo) {
 }
 
 //返回磁盘整体信息结构数据
-func WindowsGetDiskInfo() (datas []*DiskInfo) {
-	datas = make([]*DiskInfo,0)
+func WindowsGetDiskInfo() (datas []*structs.DiskInfo) {
+	datas = make([]*structs.DiskInfo,0)
 	for _,v := range WindowsGetDiskNameList(){
 
 		diskType := WindowsGetDiskType(v)
 		diskUse := WindowsGetDiskUse(v)
 		diskTotal := diskUse.Total
-		datas = append(datas,&DiskInfo{
+		datas = append(datas,&structs.DiskInfo{
 			DiskName: v,
 			DistType: diskType,
 			DistUse: diskUse,

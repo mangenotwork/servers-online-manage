@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"github.com/mangenotwork/servers-online-manage/lib/cmd"
+	"strings"
 )
 
 //获取屏幕尺寸
@@ -113,7 +114,7 @@ func WindowsGetUserDefaultLangID(){
 }
 
 //获取 windows系统型号
-func WindowsGetOsInfo(){
+func WindowsGetOsInfo() string {
 	osinfo := C.GetOsInfo()
 	buildNumber := osinfo.dwBuildNumber
 	osName := "Windows ?"
@@ -135,19 +136,34 @@ func WindowsGetOsInfo(){
 	fmt.Println("Name  = ", osName)
 	fmt.Println("versionNumber  = ", versionNumber)
 	fmt.Println("BuildNumber  = ", buildNumber)
+	return fmt.Sprintf("%s (%s) build:%d",osName,versionNumber,int(buildNumber))
 }
 
 //获取 内存大小
-func WindowsGetMemoryInfo(){
+func WindowsGetMemoryInfo() string {
 	mem := C.GetMemoryInfo()
 	fmt.Println("内存占用率 = ", mem.dwMemoryLoad)
 	fmt.Println("总物理内存 = ", mem.ullTotalPhys/1024/1024," MB" )
 	fmt.Println("闲置物理内存 = ", mem.ullAvailPhys/1024/1024, " MB")
+	return fmt.Sprintf("%dMB",int(mem.ullTotalPhys/1024/1024))
 }
 
+
 //获取主板ID
-func GetBaseBoardID(){
+func GetBaseBoardID() string {
 	cmds := []string{"wmic", "baseboard", "get", "serialnumber"}
-	boardId := cmd.WindowsSendCommand(cmds)
-	log.Println(boardId)
+	boardId := ""
+	boardIdStr := cmd.WindowsSendCommand(cmds)
+	boardIdList := strings.Split(boardIdStr,"\r\r\n")
+	log.Println(boardIdList)
+	boardIds := []string{}
+	for _,v := range boardIdList{
+		if v != ""{
+			boardIds = append(boardIds,v)
+		}
+	}
+	if len(boardIds) >= 2{
+		boardId = boardIdList[1]
+	}
+	return boardId
 }

@@ -3,7 +3,6 @@
 <<template "_head.html">>
 
 <el-main style="background-color: #F5F5F5;">
-
 		    	<el-row :gutter="20" style="margin-bottom: 8px;">
 				  <el-col :span="24"><div class="grid-content host_table">
 				  		<h4> > 服务器列表</h4>
@@ -15,38 +14,93 @@
 						    border
 						    stripe
 						    style="width: 100%">
-						    <el-table-column prop="host_name" label="Name" width="180"></el-table-column>
-						    <el-table-column prop="host_ip" label="TCP通讯地址" width="180"></el-table-column>
-						    <el-table-column prop="sys_type" label="平台"></el-table-column>
-							  <el-table-column prop="sys_architecture" label="架构"></el-table-column>
+						    <el-table-column prop="host_name" label="计算机Name"></el-table-column>
+						    <el-table-column prop="host_ip" label="TCP通讯地址"></el-table-column>
+						    <el-table-column prop="sys_info.os_name" label="系统"></el-table-column>
+							  <el-table-column prop="sys_info.sys_architecture" label="架构"></el-table-column>
+							  <el-table-column prop="sys_info.cpu_name" label="CPU"></el-table-column>
+							  <el-table-column prop="sys_info.cpu_core_number" label="cpu核心数"></el-table-column>
+							  <el-table-column prop="sys_info.mem_totle" label="内存大小"></el-table-column>
+							  <el-table-column prop="sys_info.disk_totle" label="磁盘大小"></el-table-column>
 							  <el-table-column prop="slve_version" label="客户端版本"></el-table-column>
 							  <el-table-column prop="conn_time" label="连接时间"></el-table-column>
-							  <el-table-column prop="cpu_core_number" label="cpu"></el-table-column>
 						    <!--cpu  mem  -->
-						     <el-table-column fixed="right" label="操作" width="200">
+						     <el-table-column fixed="right" label="操作" width="160">
 						      <template slot-scope="scope">
 						        <el-button @click="handleClick(scope.row)" type="text" size="small">详情</el-button>
-						        <el-button type="text" size="small">已读</el-button>
-						        <el-button type="text" size="small">监控</el-button>
-						        <el-button type="text" size="small">通知</el-button>
+						        <el-button type="text" size="small" @click="dialogVisible = true">监控</el-button>
+								  <el-badge is-dot class="item" ><el-button type="text" size="small" @click="dialogAlert = true">通知
+									  </el-button></el-badge>
 						      </template>
 						    </el-table-column>
 						  </el-table>
 						</template>
-
 				  </div></el-col>
 				</el-row>
-				
 
 		    </el-main>
-
-		 <!--  <el-footer style="background-color: #000; " >aas</el-footer> -->
 		</el-container>
 
+<el-dialog
+		title="监控设置"
+		:visible.sync="dialogVisible"
+		width="60%"
+		>
+	<div class="block">
+    	<span class="demonstration">磁盘使用率报警：</span>
+    	<el-slider v-model="value2"></el-slider>
+  	</div>
+ 	<el-button @click="dialogVisible = false">取 消</el-button>
+ 	<el-button type="primary" @click="dialogVisible = false">提交设置</el-button>
+  </span>
+</el-dialog>
+
+<el-dialog
+		title="通知&警报"
+		:visible.sync="dialogAlert"
+		width="60%"
+>
+	<template>
+		<el-alert
+				title="不可关闭的 alert"
+				type="success"
+				:closable="false"
+				style="margin: 8px;"
+				effect="dark"
+				show-icon
+				description="这是一句绕口令：黑灰化肥会挥发发灰黑化肥挥发；灰黑化肥会挥发发黑灰化肥发挥。 黑灰化肥会挥发发灰黑化肥黑灰挥发化为灰……"
+		 ></el-alert>
+		<el-alert
+				title="自定义 close-text"
+				type="info"
+				close-text="知道了"
+				style="margin: 8px;"
+				effect="dark"
+				show-icon
+		></el-alert>
+		<el-alert
+				title="设置了回调的 alert"
+				type="warning"
+				@close="hello"
+				style="margin: 8px;"
+				effect="dark"
+				show-icon
+		></el-alert>
+			<el-alert
+					title="设置了回调的 alert"
+					type="error"
+					@close="hello"
+					style="margin: 8px;"
+					effect="dark"
+					show-icon
+			></el-alert>
+	</template>
+
+	</span>
+</el-dialog>
+
 	</div>
-
 </body>
-
 
 <script type="text/javascript">
 let url = window.location.pathname;
@@ -55,9 +109,11 @@ new Vue({
 	data:function(){
 		return {
 			menu:Enum(url),
-			tableData: []
+			tableData: [],
+			dialogVisible: false,
+			dialogAlert: false,
+			value2: 50
 		}
-
 	},
 	methods:{
 		handleSelect(key, keyPath) {
@@ -90,6 +146,7 @@ new Vue({
 				contentType: "application/json",
 				async:false,
 				success:function (json){
+					console.log(json);
 					_this.tableData = json.slves;
 				},
 				error:function (){
@@ -97,6 +154,17 @@ new Vue({
 					console.log("请求失败");
 				}
 			});
+		},
+		//监控设置
+		monitorPopup: function (){
+			$('#blk').show();
+			let htmlStr = $('#blk').html();
+			this.$alert(htmlStr, '监控设置', {
+				dangerouslyUseHTMLString: true
+			});
+		},
+		hello: function (){
+			alert('Hello World!');
 		}
 	},
 	mounted:function(){

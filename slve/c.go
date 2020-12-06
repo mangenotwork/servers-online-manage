@@ -3,17 +3,14 @@ package main
 import (
 	"encoding/json"
 	"log"
-	"math/rand"
 	"net"
 	"os"
 	"time"
 
 	"github.com/mangenotwork/servers-online-manage/lib/global"
-	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
 	"github.com/mangenotwork/servers-online-manage/slve/handler"
-	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/sys2go"
 )
 
 func main() {
@@ -51,11 +48,13 @@ Reconnection:
 
 	//发送心跳的goroutine
 	go func() {
+		//测试是3秒
+		//非测试则调整到 > 30 秒
 		heartBeatTick := time.Tick(3 * time.Second)
 		for {
 			select {
 			case <-heartBeatTick:
-				SendHeartPacket(client)
+				handler.SendHeartPacket(client)
 			case <-client.StopChan:
 				return
 			}
@@ -78,6 +77,7 @@ Reconnection:
 	// 	}()
 	// }
 
+	// 发送数据包测试
 	// go func() {
 	// 	sendTimer := time.After(3 * time.Second)
 	// 	for {
@@ -103,68 +103,6 @@ Reconnection:
 	<-client.StopChan
 }
 
-//发送数据包
-//仔细看代码其实这里做了两次json的序列化，有一次其实是不需要的
-func sendReportPacket(client *structs.TcpClient) {
-	reportPacket := structs.ReportPacket{
-		Content:   getRandString(),
-		Timestamp: time.Now().Unix(),
-		Rand:      rand.Int(),
-	}
-	packetBytes, err := json.Marshal(reportPacket)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	//这一次其实可以不需要，在封包的地方把类型和数据传进去即可
-	packet := structs.Packet{
-		PacketType:    pk.REPORT_PACKET,
-		PacketContent: packetBytes,
-	}
-	sendBytes, err := json.Marshal(packet)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	//发送
-	client.Connection.Write(protocol.EnPackSendData(sendBytes))
-	//log.Println("Send metric data success!")
-}
-
-//发送心跳包，与发送数据包一样
-func SendHeartPacket(client *structs.TcpClient) {
-	heartPacket := structs.HeartPacket{
-		Version:   global.SlveVersion,
-		SlveId:    global.SlveToken,
-		IP:        sys2go.GetMyIP(),
-		System:    sys2go.GetSysType(),
-		HostName:  sys2go.GetHostName(),
-		UseCPU:    "28%",
-		UseMEM:    "28%",
-		Timestamp: time.Now().Unix(),
-	}
-	packetBytes, err := json.Marshal(heartPacket)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	packet := structs.Packet{
-		PacketType:    pk.HEART_BEAT_PACKET,
-		PacketContent: packetBytes,
-	}
-	sendBytes, err := json.Marshal(packet)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	client.Connection.Write(protocol.EnPackSendData(sendBytes))
-}
-
-//拿一串随机字符
-func getRandString() string {
-	length := rand.Intn(50)
-	strBytes := make([]byte, length)
-	for i := 0; i < length; i++ {
-		strBytes[i] = byte(rand.Intn(26) + 97)
-	}
-	return string(strBytes)
-}
 
 //初始化配置
 func InitConf() {
