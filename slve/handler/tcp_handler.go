@@ -14,6 +14,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
 	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc"
+	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/sys2go"
 )
 
 var lock = &sync.Mutex{}
@@ -27,7 +28,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		log.Println("接收服务端颁发的名称 : ", string(packet.PacketContent))
 		global.SlveToken = string(packet.PacketContent)
 		//回复Master的一包，包含基础信息
-		hostinfo := tcpfunc.GetHostInfo()
+		hostinfo := sys2go.GetHostInfo()
 		packetData := &structs.SlveBaseInfo{
 			Token :global.SlveToken,
 			Name : hostinfo.HostName,
@@ -46,7 +47,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 	//返回slve信息给master
 	case pk.Get_SLVE_INFO_PACKET:
 		log.Println("返回slve信息给master ")
-		hostinfo := tcpfunc.GetHostInfo()
+		hostinfo := sys2go.GetHostInfo()
 		packetBytes, err := json.Marshal(hostinfo)
 		if err != nil {
 			log.Println(err.Error())

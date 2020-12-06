@@ -1,5 +1,4 @@
 package windows
-import "C"
 
 /*
 #include "cpuinfo.h"

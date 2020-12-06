@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc"
 	"log"
 	"math/rand"
 	"net"
@@ -12,8 +11,9 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
-	"github.com/mangenotwork/servers-online-manage/slve/handler"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
+	"github.com/mangenotwork/servers-online-manage/slve/handler"
+	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/sys2go"
 )
 
 func main() {
@@ -134,9 +134,9 @@ func SendHeartPacket(client *structs.TcpClient) {
 	heartPacket := structs.HeartPacket{
 		Version:   global.SlveVersion,
 		SlveId:    global.SlveToken,
-		IP:        tcpfunc.GetMyIP(),
-		System:    tcpfunc.GetSysType(),
-		HostName:  tcpfunc.GetHostName(),
+		IP:        sys2go.GetMyIP(),
+		System:    sys2go.GetSysType(),
+		HostName:  sys2go.GetHostName(),
 		UseCPU:    "28%",
 		UseMEM:    "28%",
 		Timestamp: time.Now().Unix(),

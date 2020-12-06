@@ -3,10 +3,14 @@
 
 package tcpfunc
 
+import (
+	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/docker"
+)
+
 func Images(action string) (data []byte, err error){
 	switch action {
 	case "get_images_list":
-		return ImageList()
+		return docker.ImageList()
 	}
 	return
 }

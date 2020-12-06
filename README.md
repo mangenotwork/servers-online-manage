@@ -1,4 +1,7 @@
 ## TODO List
+- Windows 网络IO
+- Windows 网卡信息
+- Windows 磁盘IO
 - Sqlist 数据库
 - Slve 查看空间
 - Slve 性能采集

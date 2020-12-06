@@ -1,7 +1,7 @@
 // docker SDK 对应的功能实现
 // 这里我简述为 通过 docker golang SDK 操作 docker
 
-package tcpfunc
+package docker
 
 import (
 	"bytes"

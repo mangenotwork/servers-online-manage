@@ -4,6 +4,7 @@ package windows
 #include "getwininfo.h"
 */
 import "C"
+
 import (
 	"fmt"
 	"log"
