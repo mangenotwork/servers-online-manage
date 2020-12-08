@@ -7,7 +7,8 @@ build/
 vendor/
 logs/
 .sass-cache/
-
+slvelinux/c
+slvewin/c
 
 *.exe
 *.exe~
