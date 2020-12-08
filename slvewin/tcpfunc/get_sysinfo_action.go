@@ -51,19 +51,19 @@ func WinSysInfo() (data structs.RetuenSysInfos) {
 //上报性能信息
 //cpu 使用率， mem， disk .....
 func GetPerformance() {
-	if sys2go.GetSysType() != "windows" {
+	if sys2go.GetSysType() != "linux" {
 		return
 	}
 
-	//获取cpu 使用率, 和每个核心的使用率
-	cpuUse := windows.GetCPUUse()
+	//获取cpu 使用率,
 	cpuUseRate := &structs.CPUUseRate{
 		CPU:     "cpu",
-		UseRate: float32(cpuUse),
+		UseRate: float32(windows.GetCPUUse()),
 	}
-	//TODO 每个核心的使用率
-	cpucoreUseRate := make([]*structs.CPUUseRate, 0)
-	log.Println(cpuUseRate, cpucoreUseRate)
+
+	//和每个核心的使用率
+	//cpucoreUseRate :=
+	log.Println(cpuUseRate)
 
 	//获取内存
 	memInfo := windows.WindowsGetMemoryInfo()

@@ -155,5 +155,5 @@ type SlvePerformanceData struct {
 	TcpConnCount int
 
 	//进程数
-
+	PIDCount int
 }

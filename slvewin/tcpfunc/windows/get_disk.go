@@ -1,7 +1,9 @@
 package windows
 
 /*
+#ifdef WIN32
 #include "diskinfo.h"
+#endif
 */
 import "C"
 
@@ -107,30 +109,3 @@ func WindowsGetDiskInfo() (datas []*structs.DiskInfo) {
 }
 
 //TODO: 获取磁盘的IO率
-
-// //获取windows pid
-// func GetWindowsPIDInfo() (count int, pidlist []string) {
-// 	clist := C.GetWindowsPID()
-// 	size := int(clist.size)
-// 	var b *C.char
-// 	ptrSize := unsafe.Sizeof(b)
-// 	gostring := make([]string, size)
-// 	if size > 0 {
-// 		for i := 0; i < size; i++ {
-// 			//这个方法是解析c 的字符串链表
-// 			/*
-// 			   typedef struct{
-// 			       unsigned int size;        //子字符串数量
-// 			       char **list;            //用字符串数组来存放字符串列表
-// 			   }st_strlist;
-// 			*/
-// 			//(*C.char)(*(**C.char)(unsafe.Pointer(uintptr( unsafe.Pointer(job.exHosts)) + uintptr(1)*ptrSize ) ) ))
-// 			element := (**C.char)(unsafe.Pointer(uintptr(unsafe.Pointer(clist.list)) + uintptr(i)*ptrSize))
-// 			gostring[i] = C.GoString((*C.char)(*element))
-// 		}
-// 	}
-// 	log.Println(gostring)
-// 	count = size
-// 	pidlist = gostring
-// 	return
-// }
