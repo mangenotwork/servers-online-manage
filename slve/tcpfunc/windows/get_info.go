@@ -8,13 +8,15 @@ import "C"
 import (
 	"fmt"
 	"log"
-	"github.com/mangenotwork/servers-online-manage/lib/cmd"
 	"strings"
+
+	"github.com/mangenotwork/servers-online-manage/lib/cmd"
+	"github.com/mangenotwork/servers-online-manage/lib/utils"
 )
 
 //获取屏幕尺寸
-func RunMetrics() string{
-	return  C.GoString(C.GET_CXSCREEN())
+func RunMetrics() string {
+	return C.GoString(C.GET_CXSCREEN())
 }
 
 //获取计算机名称
@@ -48,14 +50,14 @@ func GetComputerName() string {
 
 %PATHEXT% {执行文件类型 -.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.pyo;.pyc;.py;.pyw}
 %PATH%    {搜索路径}
- */
-func GetEnvironment(input string) string{
+*/
+func GetEnvironment(input string) string {
 	cs := C.CString(input)
 	return C.GoString(C.GetEnvironment(cs))
 }
 
 //取得与底层硬件平台有关的信息
-func GetSystemInfo(){
+func GetSystemInfo() {
 	a := C.WindowsGetSystemInfo()
 	log.Println(a)
 	// http://www.office-cn.net/t/api/system_info.htm
@@ -71,7 +73,7 @@ func GetSystemInfo(){
 	log.Println(a.wProcessorRevision)
 }
 
-func GETSystemPowerStatus(){
+func GETSystemPowerStatus() {
 	a := C.GETSystemPowerStatus()
 
 	fmt.Println(a)
@@ -102,13 +104,13 @@ func GETSystemPowerStatus(){
 }
 
 //用于获取自windows启动以来经历的时间长度（毫秒）
-func GET_TickCount(){
+func GET_TickCount() {
 	a := C.GET_TickCount()
 	log.Println(a)
 }
 
 //为当前用户取得默认语言ID
-func WindowsGetUserDefaultLangID(){
+func WindowsGetUserDefaultLangID() {
 	a := C.WindowsGetUserDefaultLangID()
 	log.Println(a)
 }
@@ -118,7 +120,7 @@ func WindowsGetOsInfo() string {
 	osinfo := C.GetOsInfo()
 	buildNumber := osinfo.dwBuildNumber
 	osName := "Windows ?"
-	versionNumber := fmt.Sprintf("%d.%d",osinfo.dwMajorVersion,osinfo.dwMinorVersion)
+	versionNumber := fmt.Sprintf("%d.%d", osinfo.dwMajorVersion, osinfo.dwMinorVersion)
 	switch versionNumber {
 	case "6.2":
 		osName = "Windows 10/Servers-2012"
@@ -136,34 +138,69 @@ func WindowsGetOsInfo() string {
 	fmt.Println("Name  = ", osName)
 	fmt.Println("versionNumber  = ", versionNumber)
 	fmt.Println("BuildNumber  = ", buildNumber)
-	return fmt.Sprintf("%s (%s) build:%d",osName,versionNumber,int(buildNumber))
+	return fmt.Sprintf("%s (%s) build:%d", osName, versionNumber, int(buildNumber))
 }
 
 //获取 内存大小
 func WindowsGetMemoryInfo() string {
 	mem := C.GetMemoryInfo()
 	fmt.Println("内存占用率 = ", mem.dwMemoryLoad)
-	fmt.Println("总物理内存 = ", mem.ullTotalPhys/1024/1024," MB" )
+	fmt.Println("总物理内存 = ", mem.ullTotalPhys/1024/1024, " MB")
 	fmt.Println("闲置物理内存 = ", mem.ullAvailPhys/1024/1024, " MB")
-	return fmt.Sprintf("%dMB",int(mem.ullTotalPhys/1024/1024))
+	return fmt.Sprintf("%dMB", int(mem.ullTotalPhys/1024/1024))
 }
-
 
 //获取主板ID
 func GetBaseBoardID() string {
 	cmds := []string{"wmic", "baseboard", "get", "serialnumber"}
 	boardId := ""
 	boardIdStr := cmd.WindowsSendCommand(cmds)
-	boardIdList := strings.Split(boardIdStr,"\r\r\n")
+	boardIdList := strings.Split(boardIdStr, "\r\r\n")
 	log.Println(boardIdList)
 	boardIds := []string{}
-	for _,v := range boardIdList{
-		if v != ""{
-			boardIds = append(boardIds,v)
+	for _, v := range boardIdList {
+		if v != "" {
+			boardIds = append(boardIds, v)
 		}
 	}
-	if len(boardIds) >= 2{
+	if len(boardIds) >= 2 {
 		boardId = boardIdList[1]
 	}
 	return boardId
+}
+
+//执行 netstat -e  返回接收字节和发送字节
+func RunNetstatE() (input int64, output int64) {
+	input, output = 0, 0
+	cmds := []string{"netstat", "-e"}
+	rStr := cmd.WindowsSendCommand(cmds)
+	reg := regexp.MustCompile(`[0-9]+`)
+	sList := reg.FindAllString(rStr, -1)
+	if len(sList) >= 2 {
+		input = utils.Str2Int64(sList[0])
+		output = utils.Str2Int64(sList[1])
+	}
+	log.Println("input = ", input)
+	log.Println("output = ", output)
+	return
+}
+
+//采集网络带宽
+//通过netstat -e  命令进行采集
+func GetNetIOFromCMD() {
+	t1 := time.Now().UnixNano()
+	input1, output1 := RunNetstatE()
+	time.Sleep(500 * time.Millisecond)
+	t2 := time.Now().UnixNano()
+	input2, output2 := RunNetstatE()
+	t := (t2 - t1) / 1000 / 1000
+	input := input2 - input1
+	output := output2 - output1
+	inputms := ((float32(input) / 1024) / float32(t)) * 1000
+	outputms := ((float32(output) / 1024) / float32(t)) * 1000
+	log.Println("t = ", t, " ms")
+	log.Println("input = ", input)
+	log.Println("output = ", output)
+	log.Println("inputms = ", inputms, "kb/s")
+	log.Println("outputms = ", outputms, "kb/s")
 }
