@@ -54,6 +54,21 @@ func Str2Int64(s string) int64 {
 	return int64num
 }
 
+//字符串转int
+func Str2Int(s string) int {
+	reg := regexp.MustCompile(`[0-9]+`)
+	sList := reg.FindAllString(s, -1)
+	if len(sList) == 0 {
+		return 0
+	}
+
+	int64num, err := strconv.Atoi(sList[0])
+	if err != nil {
+		return 0
+	}
+	return int64num
+}
+
 //数字类字符串 转 int64
 func Num2Int64(s string) int64 {
 	int64num, err := strconv.ParseInt(s, 10, 64)

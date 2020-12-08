@@ -1,5 +1,5 @@
 // linux平台上的nginx相关的命令，文件内容等操作
-package linux
+package software
 
 // 是否安装nginx
 

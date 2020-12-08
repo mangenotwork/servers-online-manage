@@ -25,9 +25,11 @@
 10. Windows 系统基本信息
 11. Windows 磁盘&内存信息
 12. Windows 网络IO - 命令采集实现 -> <iphlpapi.h>与iphlpapi.li导包问题，暂时不用C实现
+13. Linux 信息获取
+14. Linux CPU, 内存, 磁盘 使用率获取
 
 ## 展示
-
 - Slve 服务列表
-![image](https://file.mange.run/mange-server_manage/20201208134139.png)
+
+![slve host list ](https://file.mange.run/mange-server_manage/20201208134139.png)
 

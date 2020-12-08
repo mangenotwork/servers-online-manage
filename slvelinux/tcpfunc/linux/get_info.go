@@ -5,7 +5,6 @@ package linux
 import (
 	"fmt"
 	"log"
-	"net"
 	"regexp"
 	"strings"
 	"time"
@@ -36,7 +35,7 @@ func GetSystemDF() (diskinfos []*structs.DiskInfo, allTotal int){
 		if v == "" {
 			continue
 		}
-		log.Println(v)
+		//log.Println(v)
 		vList := strings.Split(v," ")
 		nList := []string{}
 		for _,n := range vList{
@@ -45,15 +44,16 @@ func GetSystemDF() (diskinfos []*structs.DiskInfo, allTotal int){
 			}
 			nList = append(nList,n)
 		}
-		log.Println(nList, len(nList))
+		//log.Println(nList, len(nList))
 		if len(nList) > 5 {
 			diskinfo := &structs.DiskInfo{
 				DiskName: nList[0],
 				DistType: "",
 				DistTotalMB : nList[1],
 			}
-			total := utils.Num2Int(nList[0])
-			allTotal += total
+			//log.Println(nList[1])
+			total := utils.Num2Int(nList[1])
+			allTotal = allTotal + total
 			diskinfo.DistUse = &structs.DiskUseInfo{
 				Total: total,
 				Free: utils.Num2Int(nList[3]),
@@ -62,7 +62,7 @@ func GetSystemDF() (diskinfos []*structs.DiskInfo, allTotal int){
 			diskinfos = append(diskinfos, diskinfo)
 		}
 	}
-	log.Println(rStr)
+	//log.Println(rStr)
 	return
 }
 
@@ -204,25 +204,38 @@ func GetProcStat() (datas []*structs.ProcStatCPUData) {
 // idle=第二次的第四列 - 第一次的第四列
 // 4、计算cpu使用率
 // pcpu =100* (total-idle)/total
-func ProcStat() {
-	var pcpu float64
-
+func ProcStat(t time.Duration) (cpuUseRate *structs.CPUUseRate, cpucoreUseRate []*structs.CPUUseRate) {
+	var pcpu float32
+	cpuUseRate = &structs.CPUUseRate{}
+	cpucoreUseRate = make([]*structs.CPUUseRate, 0)
 	procStat1 := GetProcStat()
 	//睡眠延时500ms
-	time.Sleep(500 * time.Millisecond)
+	//time.Sleep(500 * time.Millisecond)
+	time.Sleep(t)
 	procStat2 := GetProcStat()
 	for _, t1 := range procStat1 {
 		for _, t2 := range procStat2 {
 			if t1.Name == t2.Name {
 				total := t2.Total - t1.Total
 				idle := t2.Idle - t1.Idle
-				pcpu = 100 * float64((total - idle)) / float64(total)
+				pcpu = 100 * float32((total - idle)) / float32(total)
 				log.Println("cpu Name = ", t1.Name)
 				log.Println("pcpu = ", pcpu)
 				log.Println("__________________________")
+				if t1.Name == "cpu"{
+					cpuUseRate = &structs.CPUUseRate{
+						CPU: t1.Name,
+						UseRate: pcpu,
+					}
+				}
+				cpucoreUseRate = append(cpucoreUseRate, &structs.CPUUseRate{
+					CPU: t1.Name,
+					UseRate: pcpu,
+				})
 			}
 		}
 	}
+	return
 }
 
 //指定进程的 /proc/*/stat 获取cpu 信息
@@ -504,33 +517,40 @@ func GetProcNetDev() (datas []*structs.ProcNetDevData) {
 // 从/proc/net/dev中读取信息并计算
 //采样两个时间段的网卡信息 n1,n2 ,  时间t1,t2
 //网络(kb/sec) = n2-n1/1024*(t2-t1)
-func ProcNetDev() {
+func ProcNetDev(st time.Duration) (networkIO []*structs.NetWorkIOSimple){
+	networkIO = make([]*structs.NetWorkIOSimple,0)
+	t1 := time.Now().UnixNano()
 	n1 := GetProcNetDev()
-	//休眠1s,误差忽略
-	time.Sleep(1 * time.Second)
+	time.Sleep(st)
+	t2 := time.Now().UnixNano()
 	n2 := GetProcNetDev()
-
+	t := (t2 - t1)/1000/1000
 	for _, v1 := range n1 {
 		for _, v2 := range n2 {
 			if v1.Name == v2.Name {
-				receice_rate := (v2.Recv - v1.Recv) / 1024 * 1
-				send_rate := (v2.Send - v1.Send) / 1024 * 1
-				log.Println(v1.Name, "RX :", receice_rate, " | TX: ", send_rate, " |TOL: ", receice_rate+send_rate)
+				receice_rate := ( float32(v2.Recv - v1.Recv) / float32(1024 * t))*1000
+				send_rate := (float32(v2.Send - v1.Send) / float32(1024 * t))*1000
+				log.Println(v1.Name, "RX :", receice_rate, "kb/sec | TX: ", send_rate, "kb/sec |TOL: ", receice_rate+send_rate,"kb/sec")
+				networkIO = append(networkIO, &structs.NetWorkIOSimple{
+					Name: v1.Name,
+					Tx: send_rate,
+					Rx: receice_rate,
+				})
 			}
 		}
 	}
+	return
 }
 
 // 从/proc/net/snmp 采集各层网络协议的收发包的情况
 // tcp : CurrEstab(TCP连接数)
-func ProcNetSnmp() {
-
+func ProcNetSnmp() (mapDataList []map[string]string) {
+	mapDataList = make([]map[string]string,0)
 	rStr := cmd.LinuxSendCommand("cat /proc/net/snmp")
 	if rStr == "" {
 		return
 	}
 	rStrList := strings.Split(rStr, "\n")
-
 	for i := 0; i < len(rStrList)-1; i++ {
 		if (i+1)%2 == 0 {
 			continue
@@ -540,14 +560,51 @@ func ProcNetSnmp() {
 		vlueList := strings.Split(rStrList[i+1], " ")
 		//log.Println(keyList)
 		//log.Println(vlueList)
-		mapData := map[string]string{}
+		mapData := make(map[string]string,0)
 		mapData["name"] = vlueList[0]
 		for i := 0; i < len(keyList); i++ {
 			mapData[keyList[i]] = vlueList[i]
 		}
 		log.Println(mapData)
+		mapDataList = append(mapDataList, mapData)
 	}
+	return
 }
+
+//tcp 有效连接数
+//方案1：  cat /proc/net/snmp   ->  Tcp : CurrEstab
+//方案2：  netstat -nat|grep ESTABLISHED|wc -l
+func GetTcpConnCount() (count int) {
+	count = 0
+	rStr := cmd.LinuxSendCommand("cat /proc/net/snmp")
+	if rStr == "" {
+		return
+	}
+	rStrList := strings.Split(rStr, "\n")
+	for i := 0; i < len(rStrList)-1; i++ {
+		if (i+1)%2 == 0 {
+			continue
+		}
+		keyList := strings.Split(rStrList[i], " ")
+		vlueList := strings.Split(rStrList[i+1], " ")
+		if strings.Index(vlueList[0] , "Tcp") != -1 ||
+			strings.Index(vlueList[0] , "TCP") != -1 ||
+			strings.Index(vlueList[0] , "tcp") != -1{
+			//log.Println("keyList = ", keyList)
+			//log.Println("vlueList = ", vlueList)
+			for i := 0; i < len(keyList); i++ {
+				if keyList[i] == "CurrEstab"{
+					log.Println("keyList = ", keyList[i])
+					log.Println("vlueList = ", vlueList[i])
+					count = utils.Num2Int(vlueList[i])
+					return
+				}
+			}
+		}
+	}
+	return
+}
+
 
 // 从/proc/<pid>/cmdline  获取启动当前进程的完整命令，但僵尸进程目录中的此文件不包含任何信息；
 func ProcPIDCmdline(pid string) {
@@ -683,17 +740,16 @@ status — 与stat所提供信息类似，但可读性较好，如下所示，�
 内存区域（zone）的详细信息列表，信息量较大，
 */
 
-//获取网卡Mac
-func GetNotCardMAC(){
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		log.Println("Error:" + err.Error())
+//获取进程数量
+//通过:  ps -ef|wc -l
+func GetProcessCount() (pcount int) {
+	pcount = 0
+	rStr := cmd.LinuxSendCommand("ps -ef|wc -l")
+	if rStr == "" {
 		return
 	}
-	for _, inter := range interfaces {
-		log.Println(inter.Name)
-		log.Println(inter.Index)
-		log.Println(inter.HardwareAddr)
-	}
-
+	//log.Println(rStr)
+	pcount = utils.Str2Int(rStr)
+	//log.Println(pcount)
+	return
 }

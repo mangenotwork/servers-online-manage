@@ -143,3 +143,4 @@ func GetNetIOFromCMD(){
 	log.Println("inputms = ", inputms, "kb/s")
 	log.Println("outputms = ", outputms, "kb/s")
 }
+

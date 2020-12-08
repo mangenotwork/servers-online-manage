@@ -1,5 +1,6 @@
 // linux平台上的docker相关的命令，文件内容等操作
-package docker
+// TODO  需要改为适配 Windows平台的
+package software
 
 import (
 	"bufio"

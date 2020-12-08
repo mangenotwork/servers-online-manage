@@ -6,6 +6,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/linux"
 	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/sys2go"
 	"log"
+	"time"
 )
 
 
@@ -47,4 +48,36 @@ func LinuxSysInfo() (data structs.RetuenSysInfos) {
 		DiskTotal: fmt.Sprintf("%dMB",diskTotal),
 	}
 	return
+}
+
+//上报性能信息
+//cpu 使用率， mem， disk .....
+func GetPerformance(){
+	if sys2go.GetSysType() != "linux" {
+		return
+	}
+	t := 500 * time.Millisecond
+	//获取cpu 使用率, 和每个核心的使用率
+	cpuUseRate, cpucoreUseRate := linux.ProcStat(t)
+	log.Println(cpuUseRate,cpucoreUseRate)
+
+	//获取内存
+	memInfo := linux.ProcMeminfo()
+	log.Println(memInfo)
+
+	//获取磁盘信息
+	diskinfo,_ := linux.GetSystemDF()
+	log.Println(diskinfo)
+
+	//网络IO
+	networkIO := linux.ProcNetDev(t)
+	log.Println(networkIO)
+
+	//有效连接数
+	connCount := linux.GetTcpConnCount()
+	log.Println(connCount)
+
+	//进程数
+	processCount := linux.GetProcessCount()
+	log.Println(processCount)
 }

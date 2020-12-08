@@ -113,5 +113,48 @@ type RetuenSysInfos struct {
 	Disk []*DiskInfo `json:"disk"`
 	//磁盘总大小 MB
 	DiskTotal string `json:"disk_totle"`
+}
+
+//环境变量
+//Slve Env Info
+type EnvInfos struct {
+
+}
+
+//cpu使用率
+type CPUUseRate struct {
+	CPU string
+	UseRate float32
+}
+
+//网络IO - 简单
+//单位 (kb/sec)
+type NetWorkIOSimple struct {
+	Name string
+	Tx float32
+	Rx float32
+}
+
+//性能采集信息
+type SlvePerformanceData struct {
+	//获取cpu 使用率, 和每个核心的使用率
+	CpuRate *CPUUseRate
+	CpucoreRate []*CPUUseRate
+
+	//获取内存
+	MemInfo *ProcMemInfo
+
+	//获取磁盘信息
+	DiskInfo []*DiskInfo
+
+	//磁盘IO
+
+	//网络IO
+	NetworkIO []*NetWorkIOSimple
+
+	//连接数
+	TcpConnCount int
+
+	//进程数
 
 }

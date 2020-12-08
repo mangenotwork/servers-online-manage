@@ -4,7 +4,7 @@
 package tcpfunc
 
 import (
-	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/docker"
+	"github.com/mangenotwork/servers-online-manage/lib/docker"
 )
 
 func Images(action string) (data []byte, err error){
