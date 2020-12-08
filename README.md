@@ -29,5 +29,5 @@
 ## 展示
 
 - Slve 服务列表
-![](https://file.mange.run/mange-server_manage/20201208134139.png)
+![image](https://file.mange.run/mange-server_manage/20201208134139.png)
 
