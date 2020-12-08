@@ -15,18 +15,23 @@ func WindowsSendCommand(command []string) (opStr string) {
 	cmd := exec.Command(command[0], command[1:len(command)]...)
 	stdout, stdoutErr := cmd.StdoutPipe()
 	if stdoutErr != nil {
-		log.Fatal("ERR stdout : ", stdoutErr)
+		log.Println("ERR stdout : ", stdoutErr)
 	}
 	defer stdout.Close()
 	if startErr := cmd.Start(); startErr != nil {
-		log.Fatal("ERR Start : ", startErr)
+		log.Println("ERR Start : ", startErr)
 	}
 	opBytes, opBytesErr := ioutil.ReadAll(stdout)
 	if opBytesErr != nil {
-		//log.Println(string(opBytes))
+		log.Println(opBytesErr)
 		opStr = ""
 	}
 	opStr = string(opBytes)
-	//log.Println(opStr)
+	log.Println(opStr)
 	return
+}
+
+//执行windows 管道命令
+func WindwsSendPipe(command1, command2 []string) (opStr string) {
+	return ""
 }
