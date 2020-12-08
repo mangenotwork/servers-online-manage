@@ -25,3 +25,6 @@
 10. Windows 系统基本信息
 11. Windows 磁盘&内存信息
 12. Windows 网络IO - 命令采集实现 -> <iphlpapi.h>与iphlpapi.li导包问题，暂时不用C实现
+
+## 展示
+![](https://file.mange.run/mange-server_manage/20201208134139.png)

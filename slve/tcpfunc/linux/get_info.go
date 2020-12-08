@@ -22,12 +22,49 @@ func GetSystemUUID() string {
 }
 
 // 通过df 采样磁盘的基本
-func GetSystemDF() {
-	rStr := cmd.LinuxSendCommand("cat /proc/cpuinfo")
+func GetSystemDF() (diskinfos []*structs.DiskInfo, allTotal int){
+	diskinfos = make([]*structs.DiskInfo,0)
+	rStr := cmd.LinuxSendCommand("df -m")
 	if rStr == "" {
 		return
 	}
-	log.Println(rStr)
+	rStrList := strings.Split(rStr,"\n")
+	if len(rStrList) <2 {
+		return
+	}
+	for _, v := range rStrList[1:len(rStrList)] {
+		if v == "" {
+			continue
+		}
+		//log.Println(v)
+		vList := strings.Split(v," ")
+		nList := []string{}
+		for _,n := range vList{
+			if n == ""{
+				continue
+			}
+			nList = append(nList,n)
+		}
+		//log.Println(nList, len(nList))
+		if len(nList) > 5 {
+			diskinfo := &structs.DiskInfo{
+				DiskName: nList[0],
+				DistType: "",
+				DistTotalMB : nList[1],
+			}
+			//log.Println(nList[1])
+			total := utils.Num2Int(nList[1])
+			allTotal = allTotal + total
+			diskinfo.DistUse = &structs.DiskUseInfo{
+				Total: total,
+				Free: utils.Num2Int(nList[3]),
+				Rate: float32(utils.Str2Int64(nList[4])),
+			}
+			diskinfos = append(diskinfos, diskinfo)
+		}
+	}
+	//log.Println(rStr)
+	return
 }
 
 // 从 /proc/cpuinfo 获取cpu相关信息
