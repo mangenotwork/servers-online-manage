@@ -21,7 +21,7 @@ type NotificationDao struct {
 func (this *NotificationDao) PendingCount() (count int, err error) {
 	db := dbconn.Conn()
 	defer db.Close()
-	err = db.Model(&models.Notifincation{}).Where("state = 0").Count(&count).Error
+	err = db.Model(&models.Notifincation{}).Where("state = 1").Count(&count).Error
 	return
 }
 

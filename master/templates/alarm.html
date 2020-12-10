@@ -8,12 +8,68 @@
 				  <el-row :gutter="20" style="margin-bottom: 8px;">
           <el-col :span="24"><div class="grid-content host_table">
               <h4> > Alarm</h4>
+              <el-row :gutter="20">
+
+                <el-col :span="4" style="margin-top: 24px;">
+                  <template>
+                    <el-switch
+                      v-model="switchvalue"
+                      active-text="未读"
+                      inactive-text="已读">
+                    </el-switch>
+                  </template>
+                </el-col>
+
+
+                <el-col :span="5">
+                  <template>
+                    <span class="demonstration">类型筛选</span>
+                    <el-select
+                      v-model="value2"
+                      multiple
+                      collapse-tags
+                      style=""
+                      placeholder="请选择Alarm类型">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                        >
+                      </el-option>
+                    </el-select>
+                  </template>
+                </el-col>
+
+                <el-col :span="8">
+                  <div class="block">
+                    <span class="demonstration">日期筛选</span>
+                    <el-date-picker
+                      v-model="value2Date"
+                      type="daterange"
+                      align="right"
+                      unlink-panels
+                      range-separator="至"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                      :picker-options="pickerOptions">
+                    </el-date-picker>
+                  </div>
+                </el-col>
+
+                <el-col :span="4" style="margin-top: 21px;">
+                    <el-button type="primary">筛选</el-button>
+                </el-col>
+
+              </el-row>
+
               <template>
               <el-table
                 :data="tableData"
                 :row-class-name="tableRowClassName"
-                height="84%"
+                height="66%"
                 border
+                :header-cell-style="{background:'#606266',color:'#fff'}"
                 style="width: 100%">
                 <el-table-column
                   prop="date"
@@ -42,7 +98,24 @@
                   </template>
                 </el-table-column>
               </el-table>
+              
+              <template>
+                <div class="block" style="margin-top: 16px;">
+                  <span class="demonstration"></span>
+                  <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page.sync="currentPage1"
+                    :page-size="100"
+                    layout="total, prev, pager, next, jumper"
+                    :total="1000">
+                  </el-pagination>
+                </div>
+              </template>
+            
             </template>
+            
+            
 
           </div></el-col>
         </el-row>
@@ -92,7 +165,55 @@ new Vue({
             name: '王小虎',
             address: '上海市普陀区金沙江路 1516 弄',
             type: 3
+          }],
+        currentPage1: 1,
+        options: [{
+          value: '选项1',
+          label: '黄金糕'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }, {
+          value: '选项3',
+          label: '蚵仔煎'
+        }, {
+          value: '选项4',
+          label: '龙须面'
+        }, {
+          value: '选项5',
+          label: '北京烤鸭'
+        }],
+        value2: [],
+        switchvalue: true,
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
           }]
+        },
+        value2Date:''
+       
 	},
 	methods:{
 		handleSelect(key, keyPath) {
@@ -116,6 +237,12 @@ new Vue({
       },
       handleClick(row) {
         console.log(row);
+      },
+      handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
       }
 	}
 })
