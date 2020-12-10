@@ -2,19 +2,23 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/mangenotwork/servers-online-manage/lib/enum"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
-	"github.com/mangenotwork/servers-online-manage/master/http"
-	"github.com/mangenotwork/servers-online-manage/master/tcp"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
 	"github.com/mangenotwork/servers-online-manage/master/db"
+	"github.com/mangenotwork/servers-online-manage/master/http"
+	"github.com/mangenotwork/servers-online-manage/master/http/models"
+	"github.com/mangenotwork/servers-online-manage/master/tcp"
 )
 
 func main() {
@@ -62,10 +66,19 @@ func RunMasterTCP() {
 		}
 
 		//新客户端连接写入Slves
-		ip := strings.Split(conn.RemoteAddr().String(),":")[0]
+		ip := strings.Split(conn.RemoteAddr().String(), ":")[0]
 		global.AddSlve(ip, newCli)
 		//打印当前所有Slve
 		global.PrintSlves()
+		//生成通知
+		notif := &models.Notifincation{
+			Slve:  ip,
+			Type:  enum.AlarmMessage,
+			State: enum.AlarmUnread,
+			Messg: fmt.Sprintf("IP:%s的Slve连接成功!", ip),
+			Time:  time.Now().Unix(),
+		}
+		notif.Create()
 
 		//客户端连接成功给他颁发一个Token
 		packet := structs.Packet{
@@ -85,8 +98,18 @@ func Handle(conn *structs.Cli) {
 	defer conn.Conn.Close()
 
 	//Master接收的具体业务
-	protocol.DePackSendDataMater(conn, tcp.MasterTcpFunc)
-
+	err := protocol.DePackSendDataMater(conn, tcp.MasterTcpFunc)
+	if err != nil {
+		log.Println(err)
+		notif := &models.Notifincation{
+			Slve:  strings.Split(conn.Conn.RemoteAddr().String(), ":")[0],
+			Type:  enum.AlarmWarning,
+			State: enum.AlarmUnread,
+			Messg: err.Error(),
+			Time:  time.Now().Unix(),
+		}
+		notif.Create()
+	}
 }
 
 //处理错误

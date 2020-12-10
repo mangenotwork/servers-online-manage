@@ -33,13 +33,13 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		hostinfo := sys2go.GetHostInfo()
 		sysinfo := tcpfunc.SysInfos()
 		packetData := &structs.SlveBaseInfo{
-			Token :global.SlveToken,
-			Name : hostinfo.HostName,
-			SysType : hostinfo.SysType,
-			SysInfo: sysinfo,
-			SlveVersion : global.SlveVersion,
+			Token:       global.SlveToken,
+			Name:        hostinfo.HostName,
+			SysType:     hostinfo.SysType,
+			SysInfo:     sysinfo,
+			SlveVersion: global.SlveVersion,
 		}
-		SendPackat(conn,packetData,pk.FIRST_PACKET)
+		SendPackat(conn, packetData, pk.FIRST_PACKET)
 		return
 
 	case pk.REPLY_HEART_PACKET:
@@ -138,18 +138,16 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		var dockerImagesPacket structs.DockerImagesAction
 		json.Unmarshal(packet.PacketContent, &dockerImagesPacket)
 		log.Println("收到Action = ", dockerImagesPacket.Action)
-		data,err := tcpfunc.Images(dockerImagesPacket.Action)
+		data, err := tcpfunc.Images(dockerImagesPacket.Action)
 		packetData := &structs.DockerImagesAction{
 			Action: dockerImagesPacket.Action,
 			Packet: data,
-			Error: err,
+			Error:  err,
 		}
-		SendPackat(conn,packetData,pk.Docker_Images)
+		SendPackat(conn, packetData, pk.Docker_Images)
 		return
 
 	}
-
-
 
 }
 
@@ -169,7 +167,7 @@ func Str2Bytes(s string, packetType byte) []byte {
 	return protocol.EnPackSendData(sendBytes)
 }
 
-func SendPackat(c net.Conn,s interface{},packetType byte) {
+func SendPackat(c net.Conn, s interface{}, packetType byte) {
 	packetBytes, err := json.Marshal(s)
 	if err != nil {
 		log.Println(err.Error())
@@ -185,20 +183,21 @@ func SendPackat(c net.Conn,s interface{},packetType byte) {
 	c.Write(protocol.EnPackSendData(sendBytes))
 }
 
-
 //发送心跳包，与发送数据包一样
 //心跳包包含了当前slve的 资源使用情况
 func SendHeartPacket(client *structs.TcpClient) {
 	heartPacket := structs.HeartPacket{
-		Version:   global.SlveVersion,
-		SlveId:    global.SlveToken,
-		IP:        sys2go.GetMyIP(),
-		System:    sys2go.GetSysType(),
-		HostName:  sys2go.GetHostName(),
-		UseCPU:    "28%",
-		UseMEM:    "28%",
-		Timestamp: time.Now().Unix(),
+		Version:     global.SlveVersion,
+		SlveId:      global.SlveToken,
+		IP:          sys2go.GetMyIP(),
+		System:      sys2go.GetSysType(),
+		HostName:    sys2go.GetHostName(),
+		UseCPU:      "28%",
+		UseMEM:      "28%",
+		Timestamp:   time.Now().Unix(),
+		Performance: tcpfunc.GetPerformance(),
 	}
+	log.Println(*heartPacket.Performance)
 	packetBytes, err := json.Marshal(heartPacket)
 	if err != nil {
 		log.Println(err.Error())
@@ -223,7 +222,6 @@ func getRandString() string {
 	}
 	return string(strBytes)
 }
-
 
 //发送数据包
 //仔细看代码其实这里做了两次json的序列化，有一次其实是不需要的

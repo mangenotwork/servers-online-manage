@@ -2,11 +2,12 @@ package tcp
 
 import (
 	"encoding/json"
-	"github.com/mangenotwork/servers-online-manage/lib/global"
-	"github.com/mangenotwork/servers-online-manage/lib/utils"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/mangenotwork/servers-online-manage/lib/global"
+	"github.com/mangenotwork/servers-online-manage/lib/utils"
 
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
@@ -25,7 +26,7 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		var beatPacket structs.SlveBaseInfo
 		json.Unmarshal(packet.PacketContent, &beatPacket)
 		log.Println("beatPacket = ", &beatPacket)
-		slveKey := strings.Split(conn.Conn.RemoteAddr().String(),":")[0]
+		slveKey := strings.Split(conn.Conn.RemoteAddr().String(), ":")[0]
 		//获取slve， global.Slves[slveKey]
 		beatPacket.SlveKey = slveKey
 		beatPacket.HostIP = conn.Conn.RemoteAddr().String()
@@ -37,7 +38,8 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		//解析数据
 		var beatPacket structs.HeartPacket
 		json.Unmarshal(packet.PacketContent, &beatPacket)
-		log.Printf("收到心跳数据 [%s] ,data is [%v]\n", conn.Conn.RemoteAddr().String(), beatPacket)
+		log.Printf("收到心跳数据 [%s] ,data is [%v]\n", conn.Conn.RemoteAddr().String(), beatPacket, *beatPacket.Performance)
+		//TODO: 处理数据，并保存
 
 		//收到返回
 		packet := structs.Packet{
@@ -75,6 +77,5 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		conn.Rdata <- string(callbackPacket.Packet)
 		return
 	}
-
 
 }

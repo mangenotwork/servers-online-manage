@@ -50,9 +50,10 @@ func WinSysInfo() (data structs.RetuenSysInfos) {
 
 //上报性能信息
 //cpu 使用率， mem， disk .....
-func GetPerformance() {
-	if sys2go.GetSysType() != "linux" {
-		return
+func GetPerformance() *structs.SlvePerformanceData {
+
+	if sys2go.GetSysType() != "windows" {
+		return &structs.SlvePerformanceData{}
 	}
 
 	//获取cpu 使用率,
@@ -84,4 +85,13 @@ func GetPerformance() {
 	//进程数
 	processCount, _ := windows.GetWindowsPIDInfo()
 	log.Println(processCount)
+
+	return &structs.SlvePerformanceData{
+		CpuRate:      cpuUseRate,
+		MemInfo:      memInfo,
+		DiskInfo:     diskinfo,
+		NetworkIO:    networkIO,
+		TcpConnCount: connCount,
+		PIDCount:     processCount,
+	}
 }

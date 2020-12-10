@@ -2,24 +2,30 @@
 package handler
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"github.com/mangenotwork/servers-online-manage/master/http/dao"
 )
 
 //首页
-func PGHome (c *gin.Context) {
+func PGHome(c *gin.Context) {
 
 	//获取 host 连接的个数
 	connHostCount := global.SlveLen()
 	//获取 资产个数
 
 	//获取 警报与通知个数
-	notifincation := new(dao.NotificationDao).PendingCount()
+	notifincation, err := new(dao.NotificationDao).PendingCount()
+	if err != nil {
+		notifincation = 0
+	}
+	log.Println("notifincation = ", notifincation)
 
 	c.HTML(200, "home.html", gin.H{
-		"conn_count":connHostCount,
-		"notifincation_count":notifincation,
+		"conn_count":          connHostCount,
+		"notifincation_count": notifincation,
 	})
 	return
 }
@@ -52,7 +58,7 @@ func PGAlarm(c *gin.Context) {
 }
 
 //设置
-func  PGSettings(c *gin.Context) {
+func PGSettings(c *gin.Context) {
 	c.HTML(200, "settings.html", gin.H{})
 	return
 }
@@ -71,6 +77,6 @@ func PGHelp(c *gin.Context) {
 
 //测试上传文件页面
 func PGUploadFileTest(c *gin.Context) {
-	 c.HTML(200, "upload_file.html", gin.H{})
-	 return
+	c.HTML(200, "upload_file.html", gin.H{})
+	return
 }

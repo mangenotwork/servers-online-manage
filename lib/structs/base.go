@@ -25,14 +25,15 @@ type Packet struct {
 
 //客户机心跳包，定时上传心跳数据
 type HeartPacket struct {
-	Version   string `json:"version"`
-	SlveId    string `json:"slve_id"`
-	IP        string `json:"slve_ip"` //ip+port
-	System    string `json:"system"`
-	HostName  string `json:"host_name"`
-	UseCPU    string `json:"use_mem"`
-	UseMEM    string `json:"use_mem"`
-	Timestamp int64  `json:"timestamp"`
+	Version     string               `json:"version"`
+	SlveId      string               `json:"slve_id"`
+	IP          string               `json:"slve_ip"` //ip+port
+	System      string               `json:"system"`
+	HostName    string               `json:"host_name"`
+	UseCPU      string               `json:"use_mem"`
+	UseMEM      string               `json:"use_mem"`
+	Timestamp   int64                `json:"timestamp"`
+	Performance *SlvePerformanceData `json:"performance"`
 }
 
 //数据包
@@ -66,7 +67,7 @@ type SendFilePacket struct {
 //客户端
 type Cli struct {
 	//连接对象
-	Conn  net.Conn
+	Conn net.Conn
 	//接收数据的chan
 	Rdata chan interface{}
 	//客户端的基本信息
@@ -90,14 +91,14 @@ type SlveBaseInfo struct {
 	//Slve 客户端版本
 	SlveVersion string `json:"slve_version"`
 	//Conn Time 连接时间  XXXX-XX-XX XX:XX:XX 格式
-	ConnTime string `json:"conn_time"`
-	SysInfo RetuenSysInfos `json:"sys_info"`
+	ConnTime string         `json:"conn_time"`
+	SysInfo  RetuenSysInfos `json:"sys_info"`
 }
 
 //Master conf
 type MasterConf struct {
-	Version    string `json:"version"`
-	MasterHost string `json:"master_host"`
+	Version      string `json:"version"`
+	MasterHost   string `json:"master_host"`
 	SqlistDBFile string `json:"sqlit_db_file"`
 }
 

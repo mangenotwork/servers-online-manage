@@ -1,8 +1,9 @@
 package routers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/servers-online-manage/master/http/handler"
 )
 
@@ -23,36 +24,42 @@ func Routers() *gin.Engine {
 
 	//页面
 	{
-		Router.GET("/", handler.PGHome) //首页
-		Router.GET("/sendfilepg",handler.PGUploadFileTest)//上传文件页面
-		Router.GET("/home",handler.PGHome)
-		Router.GET("/host",handler.PGHostList)// 服务器
-		Router.GET("/property",handler.PGProperty)	// 资产
-		Router.GET("/release",handler.PGRelease)//部署
-		Router.GET("/alarm",handler.PGAlarm)//警报与通知
-		Router.GET("/settings",handler.PGSettings)//设置
-		Router.GET("/user",handler.PGUserManage)//账号管理
-		Router.GET("/help",handler.PGHelp)//帮助
+		Router.GET("/", handler.PGHome)                     //首页
+		Router.GET("/sendfilepg", handler.PGUploadFileTest) //上传文件页面
+		Router.GET("/home", handler.PGHome)
+		Router.GET("/host", handler.PGHostList)     // 服务器
+		Router.GET("/property", handler.PGProperty) // 资产
+		Router.GET("/release", handler.PGRelease)   //部署
+		Router.GET("/alarm", handler.PGAlarm)       //警报与通知
+		Router.GET("/settings", handler.PGSettings) //设置
+		Router.GET("/user", handler.PGUserManage)   //账号管理
+		Router.GET("/help", handler.PGHelp)         //帮助
 	}
 
 	//测试用的
 	{
-		Router.GET("/getinfo", handler.GetInfoTets)//获取slve host 信息
-		Router.GET("/send",handler.SendCMDTest)////send cmd
-		Router.POST("/uploadfiles",handler.UploadfilesTest)//接收上传文件
-		Router.GET("/docker/images",handler.DockerImagesTest)
+		Router.GET("/getinfo", handler.GetInfoTets)          //获取slve host 信息
+		Router.GET("/send", handler.SendCMDTest)             ////send cmd
+		Router.POST("/uploadfiles", handler.UploadfilesTest) //接收上传文件
+		Router.GET("/docker/images", handler.DockerImagesTest)
 	}
 
 	//接口
 	API := Router.Group("/api")
 	{
 		//slve 相关的接口
-		SlveAPI_V1 := API.Group("/slve/v1")
+		SlveAPI := API.Group("/slve/v1")
 		{
-			SlveAPI_V1.GET("/ip/list", handler.GetSlveIPList)//获取当前连接 slve IP
-			SlveAPI_V1.GET("/list", handler.GetSlveList)//slve 列表, 包含了基本信息
+			SlveAPI.GET("/ip/list", handler.GetSlveIPList) //获取当前连接 slve IP
+			SlveAPI.GET("/list", handler.GetSlveList)      //slve 列表, 包含了基本信息
 			//获取slve详细信息
 			//给slve设置一个名称
+		}
+
+		//警报与通知 	alarm  相关接口
+		AlarmAPI := API.Group("/alarm/v1")
+		{
+			AlarmAPI.GET("/list", handler.GetAlarmList) //消息 列表
 		}
 
 		//slve 信息相关的接口
@@ -62,12 +69,11 @@ func Routers() *gin.Engine {
 		}
 
 		//docker 相关的接口
-		DockerAPI_V1 :=  API.Group("/docker/v1")
+		DockerAPI_V1 := API.Group("/docker/v1")
 		{
 			DockerAPI_V1.GET("/images", handler.DockerImagesTest) //docker images
 		}
 	}
-
 
 	//404
 	Router.NoRoute(func(ctx *gin.Context) {

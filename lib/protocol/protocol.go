@@ -3,6 +3,7 @@ package protocol
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash/crc32"
 	"io"
@@ -37,7 +38,8 @@ func EnPackSendData(sendBytes []byte) []byte {
 //其中len为data的长度，实际长度为len(高)*256+len(低)
 //CRC为32位CRC，取了最高16位共2Bytes
 //0xFF|0xFF和0xFF|0xFE类似于前导码
-func DePackSendDataMater(conn *structs.Cli, f func(*structs.Cli, *structs.Packet)) {
+func DePackSendDataMater(conn *structs.Cli, f func(*structs.Cli, *structs.Packet)) (err error) {
+	err = nil
 	// 状态机状态
 	state := 0x00
 	// 数据包长度
@@ -60,11 +62,12 @@ func DePackSendDataMater(conn *structs.Cli, f func(*structs.Cli, *structs.Packet
 				log.Println(" %s is close!\n", conn.Conn.RemoteAddr().String())
 
 			}
-			key := strings.Split(conn.Conn.RemoteAddr().String(),":")[0]
+			key := strings.Split(conn.Conn.RemoteAddr().String(), ":")[0]
 			global.DelSlve(key)
+			//生成消息
 			//在这里直接退出goroutine，关闭由defer操作完成
-
-			return
+			err = errors.New(fmt.Sprintf("IP: %s 的Slve断开了连接", key))
+			return err
 		}
 
 		//log.Println("状态机状态 = ", state)
