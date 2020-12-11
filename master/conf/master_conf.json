@@ -1,5 +1,5 @@
 {
 	"version":"0.0.1",
-	"master_host":"192.168.0.9:18555",
+	"master_host":"127.0.0.1:17555",
 	"sqlit_db_file": ""
 }

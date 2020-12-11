@@ -31,7 +31,7 @@ func GetAlarmList(c *gin.Context) {
 		StartTime: start,
 		EndTime:   end,
 		Page:      pg,
-		PageSize:  2,
+		PageSize:  10,
 	}
 	datas, count, err := d.Get()
 	if err != nil {
