@@ -52,10 +52,11 @@ func LinuxSysInfo() (data structs.RetuenSysInfos) {
 
 //上报性能信息
 //cpu 使用率， mem， disk .....
-func GetPerformance(){
+func GetPerformance() *structs.SlvePerformanceData {
 	if sys2go.GetSysType() != "linux" {
-		return
+			return &structs.SlvePerformanceData{}
 	}
+
 	t := 500 * time.Millisecond
 	//获取cpu 使用率, 和每个核心的使用率
 	cpuUseRate, cpucoreUseRate := linux.ProcStat(t)
@@ -80,4 +81,14 @@ func GetPerformance(){
 	//进程数
 	processCount := linux.GetProcessCount()
 	log.Println(processCount)
+
+	return &structs.SlvePerformanceData{
+		CpuRate:      cpuUseRate,
+		CpucoreRate:  cpucoreUseRate,
+		MemInfo:      memInfo,
+		DiskInfo:     diskinfo,
+		NetworkIO:    networkIO,
+		TcpConnCount: connCount,
+		PIDCount:     processCount,
+	}
 }

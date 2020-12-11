@@ -3,10 +3,14 @@ package handler
 
 import (
 	"log"
+	"net/http/httputil"
+	"net/url"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"github.com/mangenotwork/servers-online-manage/master/http/dao"
+	_"net/http/httputil"
 )
 
 //首页
@@ -79,4 +83,34 @@ func PGHelp(c *gin.Context) {
 func PGUploadFileTest(c *gin.Context) {
 	c.HTML(200, "upload_file.html", gin.H{})
 	return
+}
+
+//转发
+func ZF(c *gin.Context) {
+	log.Println(c.Request.URL)
+	urlStr := c.Param("URL")
+	log.Println("url = ",urlStr)
+	curlList := strings.Split(urlStr,"/")
+	if len(curlList) < 3 {
+		c.String(200, "路由规则:  Domain/Slve/SlveIP/ , 不识别 Domain/Slve/SlveIP ")
+		return
+	}
+	for i, u := range curlList{
+		log.Println(i,u)
+	}
+	slve := curlList[1]
+	slvehttp := "http://"+slve+":18383/"
+	log.Println("slvehttp = ",slvehttp)
+	remote, err := url.Parse(slvehttp)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("remote = ", remote)
+	curlstr := strings.Join(curlList[2:len(curlList)],"/")
+	log.Println("curlstr = ", curlstr)
+	curlstr = "/" + curlstr
+
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+	c.Request.URL.Path = curlstr //请求API
+	proxy.ServeHTTP(c.Writer, c.Request)
 }

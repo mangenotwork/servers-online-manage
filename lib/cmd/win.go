@@ -4,19 +4,22 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"context"
 )
 
 //Windows Send Command Linux执行命令
 //command 要执行的命令
 func WindowsSendCommand(command []string) (opStr string) {
+	ctx, cancel := context.WithCancel(context.Background())
 	if len(command) < 1 {
 		return ""
 	}
-	cmd := exec.Command(command[0], command[1:len(command)]...)
+	cmd := exec.CommandContext(ctx, command[0], command[1:len(command)]...)
 	stdout, stdoutErr := cmd.StdoutPipe()
 	if stdoutErr != nil {
 		log.Println("ERR stdout : ", stdoutErr)
 	}
+	defer cancel()
 	defer stdout.Close()
 	if startErr := cmd.Start(); startErr != nil {
 		log.Println("ERR Start : ", startErr)
@@ -28,6 +31,7 @@ func WindowsSendCommand(command []string) (opStr string) {
 	}
 	opStr = string(opBytes)
 	log.Println(opStr)
+	cmd.Wait()
 	return
 }
 

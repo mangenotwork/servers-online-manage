@@ -35,6 +35,11 @@ func TestRun(t *testing.T){
 	//a7 := GetTcpConnCount()
 	//t.Log(a7)
 
-	a8 := GetProcessCount()
-	t.Log(a8)
+	//a8 := GetProcessCount()
+	//t.Log(a8)
+
+	//a9 := GetProcessList()
+	//t.Log(len(a9),a9)
+
+	GetSysEnv()
 }
