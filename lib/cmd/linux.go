@@ -4,16 +4,19 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"context"
 )
 
 //Linux Send Command Linux执行命令
 //command 要执行的命令
 func LinuxSendCommand(command string) (opStr string) {
-	cmd := exec.Command("/bin/bash", "-c", command)
+	ctx, cancel := context.WithCancel(context.Background())
+	cmd := exec.CommandContext(ctx,"/bin/bash", "-c", command)
 	stdout, stdoutErr := cmd.StdoutPipe()
 	if stdoutErr != nil {
 		log.Fatal("ERR stdout : ", stdoutErr)
 	}
+	defer cancel()
 	defer stdout.Close()
 	if startErr := cmd.Start(); startErr != nil {
 		log.Fatal("ERR Start : ", startErr)
@@ -25,5 +28,6 @@ func LinuxSendCommand(command string) (opStr string) {
 	}
 	opStr = string(opBytes)
 	//log.Println(opStr)
+	cmd.Wait()
 	return
 }

@@ -5,13 +5,9 @@ import (
 	"log"
 	"net"
 	"os"
-	"regexp"
 	"runtime"
-	"time"
 
-	"github.com/mangenotwork/servers-online-manage/lib/cmd"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
-	"github.com/mangenotwork/servers-online-manage/lib/utils"
 )
 
 //获取本机ip

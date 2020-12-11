@@ -157,3 +157,18 @@ type SlvePerformanceData struct {
 	//进程数
 	PIDCount int
 }
+
+
+//进程基本信息
+//是兼容性的结构体 兼容了linux 和 windows
+type ProcessBaseInfo struct {
+	PID string `json:"pid"`
+	User string `json:"user"`
+	PName string `json:"pname"`
+	PPID string `json:"ppid"` //父进程
+	C string
+	Stime string
+	TTY string `json:"tty"`
+	Time string
+	CMD string `json:"cmd"` //执行命令
+}

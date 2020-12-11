@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"time"
 
@@ -17,6 +19,9 @@ func main() {
 
 	//初始话配置
 	InitConf()
+
+	//启动一个文件服务
+	go FileServer()
 
 	//用于重连
 Reconnection:
@@ -127,4 +132,15 @@ func InitConf() {
 	//检查空间
 	os.Mkdir(global.SlveSpace, os.ModePerm)
 
+}
+
+//启动一个文件服务
+func FileServer() {
+	var (
+		listen = flag.String("listen", ":18383", "listen address")
+		dir    = flag.String("dir", "/", "directory to serve")
+	)
+	log.Printf("listening on %q...", *listen)
+	err := http.ListenAndServe(*listen, http.FileServer(http.Dir(*dir)))
+	log.Fatalln(err)
 }

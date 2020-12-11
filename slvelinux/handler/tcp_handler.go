@@ -198,6 +198,7 @@ func SendHeartPacket(client *structs.TcpClient) {
 		UseCPU:    "28%",
 		UseMEM:    "28%",
 		Timestamp: time.Now().Unix(),
+		Performance: tcpfunc.GetPerformance(),
 	}
 	packetBytes, err := json.Marshal(heartPacket)
 	if err != nil {

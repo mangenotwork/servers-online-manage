@@ -145,38 +145,27 @@ func GetProcStat() (datas []*structs.ProcStatCPUData) {
 				name := vList[0]
 				//user 从系统启动开始累计到当前时刻，处于用户态的运行时间，不包含 nice值为负的进程。
 				user := utils.Num2Int64(vList[1])
-
 				//system 从系统启动开始累计到当前时刻，处于核心态的运行时间。
 				system := utils.Num2Int64(vList[2])
-
 				//nice 从系统启动开始累计到当前时刻，nice值为负的进程所占用的CPU时间。
 				nice := utils.Num2Int64(vList[3])
-
 				//idle 从系统启动开始累计到当前时刻，除IO等待时间以外的其它等待时间。
 				idle := utils.Num2Int64(vList[4])
-
 				//iowait 从系统启动开始累计到当前时刻，IO等待时间(since 2.5.41)。
 				iowait := utils.Num2Int64(vList[5])
-
 				//irq 从系统启动开始累计到当前时刻，硬中断时间(since 2.6.0-test4)。
 				irq := utils.Num2Int64(vList[6])
-
 				//softirq  从系统启动开始累计到当前时刻，软中断时间(since2.6.0-test4)。
 				softirq := utils.Num2Int64(vList[7])
-
 				//stealstolen  which is the time spent in otheroperating systems
 				//when running in a virtualized environment(since 2.6.11)
 				stealstolen := utils.Num2Int64(vList[8])
-
 				//guest whichis the time spent running a virtual CPU  for  guest
 				//operating systems under the control ofthe Linux kernel(since 2.6.24)。
 				guest := utils.Num2Int64(vList[9])
-
 				//log.Println(name, user, system, nice, idle, iowait, irq, softirq, stealstolen, guest)
-
 				//总的cpu时间totalCpuTime = user + nice + system + idle + iowait + irq + softirq + stealstolen  +  guest
 				totalCpuTime := user + nice + system + idle + iowait + irq + softirq + stealstolen + guest
-
 				//user+nice+system+irq+softirq
 				userCpuTime := user + nice + system + irq + softirq
 
@@ -753,3 +742,65 @@ func GetProcessCount() (pcount int) {
 	//log.Println(pcount)
 	return
 }
+
+//获取进程 ipd&cmd
+func GetProcessList() (pBaseInfo []*structs.ProcessBaseInfo) {
+	pBaseInfo = make([]*structs.ProcessBaseInfo, 0)
+	rStr := cmd.LinuxSendCommand("ps -ef")
+	if rStr == "" {
+		return
+	}
+	//log.Println(rStr)
+	rStrList := strings.Split(rStr, "\n")
+	for _,v := range rStrList[1:len(rStrList)]{
+		log.Println(v)
+		vStrList := []string{}
+		for _,n := range strings.Split(v," "){
+			if n != ""{
+				vStrList = append(vStrList, n)
+			}
+		}
+		log.Println("vStrList = ",vStrList, len(vStrList))
+		if len(vStrList) < 8{
+			continue
+		}
+		log.Println("User = ",vStrList[0])
+		log.Println("PID = ", vStrList[1])
+		log.Println("PPID = ", vStrList[2])
+		log.Println("C = ", vStrList[3])
+		log.Println("STIME = ", vStrList[4])
+		log.Println("TTY = ", vStrList[5])
+		log.Println("TIME = ", vStrList[6])
+		log.Println("CMD = ", strings.Join(vStrList[7:len(vStrList)]," "))
+		pBaseInfo = append(pBaseInfo, &structs.ProcessBaseInfo{
+			User: vStrList[0],
+			PID: vStrList[1],
+			PPID: vStrList[2],
+			TTY: vStrList[5],
+			CMD: strings.Join(vStrList[7:len(vStrList)]," "),
+		})
+	}
+	return
+}
+
+//获取系统进程的环境变量
+func GetSysEnv() (envMap map[string]string){
+	envMap = make(map[string]string,0)
+	rStr := cmd.LinuxSendCommand("env")
+	if rStr == "" {
+		return
+	}
+	//log.Println(rStr)
+	rStrList := strings.Split(rStr, "\n")
+	for _, v := range rStrList{
+		//log.Println("v == ", v)
+		vList := strings.Split(v,"=")
+		if len(vList) <2 {
+			continue
+		}
+		envMap[vList[0]] = strings.Join(vList[1:len(vList)],"")
+	}
+	log.Println(envMap)
+	return
+}
+
