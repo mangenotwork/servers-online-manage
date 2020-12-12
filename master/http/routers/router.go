@@ -34,7 +34,8 @@ func Routers() *gin.Engine {
 		Router.GET("/settings", handler.PGSettings) //设置
 		Router.GET("/user", handler.PGUserManage)   //账号管理
 		Router.GET("/help", handler.PGHelp)         //帮助
-		Router.Any("/SlveFile/*URL", handler.ZF)
+		Router.Any("/SlveFile/*URL", handler.ZF) //转发测试
+		Router.GET("/slve/details/:slveId", handler.SlveDetails) //Slve详细信息
 	}
 
 	//测试用的

@@ -136,6 +136,8 @@ new Vue({
       	},
       	handleClick(row) {
         	console.log(row);
+        	console.log("/slve/details/"+row.key);
+			window.location = "/slve/details/"+row.key;
 		},
 		getlist: function(){
 			let _this = this;

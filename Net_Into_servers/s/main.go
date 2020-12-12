@@ -199,6 +199,5 @@ func main() {
 	//启动服务
 	err := ms.Start(localPort, remotePort)
 	log.Println(err)
-	for {
-	}
+	select {}
 }

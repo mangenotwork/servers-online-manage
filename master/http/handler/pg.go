@@ -114,3 +114,9 @@ func ZF(c *gin.Context) {
 	c.Request.URL.Path = curlstr //请求API
 	proxy.ServeHTTP(c.Writer, c.Request)
 }
+
+//Slve 详情信息
+func SlveDetails(c *gin.Context) {
+	c.HTML(200, "slve_details.html", gin.H{})
+	return
+}

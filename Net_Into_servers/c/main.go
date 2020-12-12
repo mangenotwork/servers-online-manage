@@ -11,7 +11,6 @@ import (
 func handler(r net.Conn, localPort int) {
 	buf := make([]byte, 1024)
 	for {
-		log.Println("okok")
 		//先从远程读数据
 		n, err := r.Read(buf)
 		if err != nil {
@@ -71,6 +70,5 @@ func main() {
 	log.Println(remote)
 	handler(remote, port)
 
-	for {
-	}
+	select {}
 }

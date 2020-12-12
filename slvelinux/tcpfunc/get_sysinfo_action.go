@@ -92,3 +92,11 @@ func GetPerformance() *structs.SlvePerformanceData {
 		PIDCount:     processCount,
 	}
 }
+
+//获取slve详情信息
+func GetDetailsInfo(){
+	//基础信息
+	//环境变量
+	//进程列表
+
+}

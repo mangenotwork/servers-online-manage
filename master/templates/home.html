@@ -28,44 +28,18 @@
 
 				</el-row>
 
-		    	<!-- <el-row :gutter="20" style="margin-bottom: 8px;">
-				  <el-col :span="24"><div class="grid-content home_tz">
-				  		<h4> > 通知</h4>
-				  		<template>
-						  <el-table
-						    :data="tableData"
-						    :row-class-name="tableRowClassName"
-						    height="250"
-						    border
-						    style="width: 100%">
-						    <el-table-column
-						      prop="date"
-						      label="日期"
-						      width="180">
-						    </el-table-column>
-						    <el-table-column
-						      prop="name"
-						      label="姓名"
-						      width="180">
-						    </el-table-column>
-						    <el-table-column
-						      prop="address"
-						      label="地址">
-						    </el-table-column>
-						     <el-table-column
-						      fixed="right"
-						      label="操作"
-						      width="100">
-						      <template slot-scope="scope">
-						        <el-button @click="handleClick(scope.row)" type="text" size="small">详情</el-button>
-						        <el-button type="text" size="small">已读</el-button>
-						      </template>
-						    </el-table-column>
-						  </el-table>
-						</template>
 
-				  </div></el-col>
-				</el-row> -->
+	<el-row :gutter="20" class="mb38">
+		<el-col :span="24"><el-card shadow="hover"><div class="home_rk">
+					<h2>在Master创建网络服务</h2>
+					<el-button type="primary" plain><i class="el-icon-connection" style=""></i> 内网穿透服务</el-button>
+					<el-button type="primary" plain><i class="el-icon-guide"></i> Http/s代理服务</el-button>
+					<el-button type="primary" plain><i class="el-icon-guide"></i> TCP代理服务</el-button>
+					<el-button type="primary" plain><i class="el-icon-receiving"></i> 网络文件服务</el-button>
+					<a href="/host" class="button_a" style="margin-left: 12px;"><el-button type="info" plain>Master网络服务列表</el-button></a>
+				</div></el-card></el-col>
+	</el-row>
+
 			<el-row :gutter="20" class="mb38">
 				<div id="main1" style="width: 80%;height:600px;"></div>
 			</el-row>
@@ -88,66 +62,16 @@ new Vue({
 	el:"#app",
 	
 	data:{
-		menu:Enum(url),
-	     tableData: [{
-            date: '2016-05-02',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄',
-            type: 1
-          }, {
-            date: '2016-05-04',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1517 弄',
-            type: 1
-          }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄',
-            type: 3
-          }, {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄',
-            type: 1
-          }, {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄',
-            type: 3
-          }, {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄',
-            type: 3
-          }]
+		menu:Enum(url)
 	},
 	methods:{
-		handleSelect(key, keyPath) {
-        	console.log(key, keyPath);
-      	},
       	handleOpen(key, keyPath) {
 	        console.log(key, keyPath);
 	        window.location.href=keyPath;
 	    },
 	    handleClose(key, keyPath) {
 	        console.log(key, keyPath);
-	    },
-	    hostList(){
-
-	    	this.$router.push('host_list.html');
-	    },
-	     tableRowClassName({row, rowIndex}) {
-	     	console.log(row)
-        if (row.type === 1) {
-          return 'warning-row';
-        } else if (row.type === 3) {
-          return 'success-row';
-        }
-        return '';
-      },
-      handleClick(row) {
-        console.log(row);
-      }
+	    }
 	}
 })
 

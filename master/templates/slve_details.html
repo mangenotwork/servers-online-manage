@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<<template "_head.html">>
+
+<el-main style="background-color: #F5F5F5;">
+    <el-row :gutter="20" style="margin-bottom: 8px;">
+        <el-col :span="24"><div class="grid-content host_table">
+                <h4> > Slve详情</h4>
+            </div>
+        </el-col>
+    </el-row>
+
+</el-main>
+</el-container>
+
+</div>
+
+</body>
+
+<script type="text/javascript">
+    let url = "/host";
+    new Vue({
+        el: "#app",
+        data: function () {
+            return {
+                menu: Enum(url)
+            }
+        },
+        methods:{
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+                window.location.href=keyPath;
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            }
+        }
+        // mounted: {
+        //     console.log("open");
+        // }
+    });
+</script>
+
+</html>
