@@ -4,8 +4,77 @@
 
 <el-main style="background-color: #F5F5F5;">
     <el-row :gutter="20" style="margin-bottom: 8px;">
-        <el-col :span="24"><div class="grid-content host_table">
-                <h4> > Slve详情</h4>
+        <el-col :span="24"><div class="grid-content host_table" style="height: 80%;">
+                <el-link href="/host" style="font-size: 18px;margin-bottom: 12px;"> > 服务器列表</el-link> <el-link type="primary" href="#" style="font-size: 18px;margin-bottom: 12px;"> > DESKTOP-77ATEHD</el-link>
+
+                <template>
+                  <el-tabs type="card" v-model="activeName" @tab-click="handleClick">
+
+                    <el-tab-pane label="概括" name="a1" style="height: 80%" >
+
+                        <el-row :gutter="12">
+                            <el-col :span="6">
+                                <el-card shadow="hover" style="height: 140px;">
+                                  系统
+                                </el-card>
+                              </el-col>
+                              <el-col :span="6">
+                                <el-card shadow="hover" style="height: 140px;">
+                                  配置
+                                </el-card>
+                              </el-col>
+                              <el-col :span="6">
+                                <el-card shadow="hover" style="height: 140px;">
+                                  网络
+                                </el-card>
+                              </el-col>
+                              <el-col :span="6">
+                                <el-card shadow="hover" style="height: 140px;">
+                                  运行
+                                </el-card>
+                              </el-col>
+                        </el-row>
+                        <el-row :gutter="12">
+                            <el-col :span="12">
+                                <el-card shadow="always" style="height: 320px;">
+                                  图1
+                                </el-card>
+                              </el-col>
+                              <el-col :span="12">
+                                <el-card shadow="always" style="height: 320px;">
+                                  图2
+                                </el-card>
+                              </el-col>
+                        </el-row>
+                        <el-row :gutter="12">
+                            <el-col :span="12">
+                                <el-card shadow="always" style="height: 320px;">
+                                  图1
+                                </el-card>
+                              </el-col>
+                              <el-col :span="12">
+                                <el-card shadow="always" style="height: 320px;">
+                                  图2
+                                </el-card>
+                              </el-col>
+                        </el-row>
+
+                    </el-tab-pane>
+
+                    <el-tab-pane label="监控" name="a2">监控</el-tab-pane>
+
+                    <el-tab-pane label="进程" name="a3">进程</el-tab-pane>
+
+                    <el-tab-pane label="环境变量" name="a4">环境变量</el-tab-pane>
+
+                    <el-tab-pane label="部署" name="a5">部署</el-tab-pane>
+
+                    <el-tab-pane label="设置" name="a6">设置</el-tab-pane>
+
+                  </el-tabs>
+                </template>
+
+
             </div>
         </el-col>
     </el-row>
@@ -23,7 +92,8 @@
         el: "#app",
         data: function () {
             return {
-                menu: Enum(url)
+                menu: Enum(url),
+                activeName: 'a1'
             }
         },
         methods:{
@@ -33,7 +103,10 @@
             },
             handleClose(key, keyPath) {
                 console.log(key, keyPath);
-            }
+            },
+             handleClick(tab, event) {
+                console.log(tab, event);
+              }
         }
         // mounted: {
         //     console.log("open");
