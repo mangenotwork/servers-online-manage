@@ -8,8 +8,21 @@ package windows
 */
 import "C"
 
+import (
+	"unsafe"
+)
+
 //获取cpu的VendorId
-func GetCpuVendorId() string{
+func GetCpuVendorId() string {
+
+	//cStr := C.WindowsGetCpuVendorId()
+	var out *C.char = C.WindowsGetCpuVendorId()
+	a := C.GoString(out)
+	C.free(unsafe.Pointer(out))
+	return a
+}
+
+func GetCpuVendorId1() string {
 	return C.GoString(C.WindowsGetCpuVendorId())
 }
 

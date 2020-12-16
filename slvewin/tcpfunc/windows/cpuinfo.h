@@ -219,6 +219,7 @@ RetuenCpuInfo _Test()
     printf("address sizes \t: %u bits physical - %u bits virtual\n", cpuinfo.vir_bits, cpuinfo.phy_bits);
 	return cpuinfo;
 }
+
 char* WindowsGetCpuVendorId(){
 	char* vendor_id;
 	vendor_id = (char *)malloc(49);

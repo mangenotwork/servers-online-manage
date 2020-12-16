@@ -1,0 +1,242 @@
+<script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+<script type="text/javascript">
+	
+//折现图 - cpu使用率,内存使用率,磁盘使用率 图表数据
+function LineChartData1(titleStr, timeData, showData){
+    let rdata = {
+        backgroundColor: '#ffffff',//'#050d19',
+        title:{
+          textStyle:{
+              color:"#6a9cd5"
+          },
+          text: titleStr,
+          left:"center",
+        },
+        tooltip: {//鼠标悬浮弹出提示框
+            trigger:'axis', //提示框弹出的触发时间，折线图和柱状图为axis
+            formatter:"{a} <br/>{b} : {c} %"//提示框提示的信息，{a}series内的名字，{b}为块状的名字，{c}为数值
+        },
+        grid: {//统计图距离边缘的距离
+            top: '8%',
+            left: '10%',
+            right: '10%',
+            bottom: '8%'
+        },
+        xAxis: [{//x轴
+            type: 'category',//数据类型为不连续数据
+            boundaryGap: false,//坐标轴两边是否留白
+            axisLine: { //坐标轴轴线相关设置。数学上的x轴
+                 show: true,
+                 lineStyle: {
+                     color: '#233e64' //x轴颜色
+                 },
+             },
+             axisLabel: { //坐标轴刻度标签的相关设置
+                 textStyle: {
+                     color: '#6a9cd5',
+                 },
+             },
+             axisTick: { show: true,},//刻度点数轴
+            data: timeData,
+        }],
+        yAxis: [{//y轴的相关设置
+            type: 'value',//y轴数据类型为连续的数据
+            min: 0,//y轴上的刻度最小值
+            max:100,//y轴上的刻度最大值
+            splitNumber: 7,//y轴上的刻度段数
+            splitLine: {//y轴上的y轴线条相关设置
+                 show: true,
+                 lineStyle: {
+                     color: '#233e64'
+                 }
+             },
+             axisLine: {//y轴的相关设置
+                show: true,
+                lineStyle: {
+                    color: '#233e64' //y轴颜色
+                },
+             },
+             axisLabel: {//y轴的标签相关设置
+             formatter: "{value} %",
+                 textStyle: {
+                     color: '#6a9cd5',
+                 },
+             },
+             axisTick: { show: true,},  //刻度点数轴
+        }],
+        series: [{
+            name: titleStr,
+            type: 'line',//统计图类型为折线图
+            smooth: true, //是否平滑曲线显示
+            symbolSize:0,//数据点的大小，[0,0]//b表示宽度和高度
+            lineStyle: {//线条的相关设置
+                normal: {
+                    color: "#3deaff"   // 线条颜色
+                }
+            },
+            areaStyle: { //区域填充样式
+                normal: {
+                 //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+                   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                       { offset: 0,  color: 'rgba(61,234,255, 0.9)'}, 
+                       { offset: 0.7,  color: 'rgba(61,234,255, 0)'}
+                   ], false),
+                 shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+                 shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+             }
+         },
+            data: showData
+        }]
+    };
+    return rdata;
+} 
+
+
+//折现图 - 网络IO, 磁盘IO 图表数据
+function LineChartData2(titleStr, objNameList, timeData, objData1, objData2){
+    let rdata = {
+        backgroundColor:'#ffffff',
+        title: {
+            textStyle:{
+              color:"#6a9cd5",
+          },
+          text: titleStr,
+          left:"center",
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                lineStyle: {
+                    color: '#ddd'
+                }
+            },
+            backgroundColor: 'rgba(255,255,255,1)',
+            padding: [5, 10],
+            textStyle: {
+                color: '#7588E4',
+            },
+            extraCssText: 'box-shadow: 0 0 5px rgba(0,0,0,0.3)'
+        },
+        grid: {//统计图距离边缘的距离
+            top: '12%',
+            left: '10%',
+            right: '10%',
+            bottom: '8%'
+        },
+        legend: {
+            right: 20,
+            orient: 'vertical',
+            data: objNameList
+        },
+        xAxis: {
+            type: 'category',
+            data: timeData,
+            boundaryGap: false,
+            splitLine: {
+                show: true,
+                interval: 'auto',
+                lineStyle: {
+                    color: ['#D4DFF5']
+                }
+            },
+            axisTick: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#609ee9'
+                }
+            },
+            axisLabel: {
+                margin: 10,
+                textStyle: {
+                    fontSize: 14
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            splitLine: {
+                lineStyle: {
+                    color: ['#D4DFF5']
+                }
+            },
+            axisTick: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#609ee9'
+                }
+            },
+            axisLabel: {
+                margin: 10,
+                textStyle: {
+                    fontSize: 14
+                }
+            }
+        },
+        series: [{
+            name: objNameList[0],
+            type: 'line',
+            smooth: true,
+            showSymbol: false,
+            symbol: 'circle',
+            symbolSize: 6,
+            data: objData1,
+            areaStyle: {
+                normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(199, 237, 250,0.5)'
+                    }, {
+                        offset: 1,
+                        color: 'rgba(199, 237, 250,0.2)'
+                    }], false)
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#f7b851'
+                }
+            },
+            lineStyle: {
+                normal: {
+                    width: 3
+                }
+            }
+            }, {
+            name: objNameList[1],
+            type: 'line',
+            smooth: true,
+            showSymbol: false,
+            symbol: 'circle',
+            symbolSize: 6,
+            data: objData2,
+            areaStyle: {
+                normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(216, 244, 247,1)'
+                    }, {
+                        offset: 1,
+                        color: 'rgba(216, 244, 247,1)'
+                    }], false)
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#58c8da'
+                }
+            },
+            lineStyle: {
+                normal: {
+                    width: 3
+                }
+            }
+        }]
+    };
+    return rdata;
+}
+
+</script>
