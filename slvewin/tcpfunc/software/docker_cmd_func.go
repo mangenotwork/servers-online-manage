@@ -4,9 +4,9 @@ package software
 
 import (
 	"fmt"
-	"github.com/mangenotwork/servers-online-manage/lib/cmd"
 	"strings"
 
+	"github.com/mangenotwork/servers-online-manage/lib/cmd"
 )
 
 //判断本机是否存在Docker
@@ -70,7 +70,7 @@ func (image *Image) OutPutImages(imagesstr string) ([]*Image, int) {
 			ImagesNow = append(ImagesNow, imageopt)
 		}
 		fmt.Println(len(imagesInfos))
-		fmt.Println("\n\n")
+		fmt.Println()
 	}
 	fmt.Println(ImagesNow)
 	for number, hoder := range ImagesNow {
@@ -89,7 +89,6 @@ func (image *Image) RMI(id string) bool {
 	}
 	return true
 }
-
 
 //  =============================   container (容器)
 
@@ -156,7 +155,7 @@ func (holder *Holder) OutPutHolder(hoderstr string) ([]*Holder, int) {
 			holderNow = append(holderNow, holderopt)
 		}
 		fmt.Println(len(holderInfos))
-		fmt.Println("\n\n")
+		fmt.Println()
 	}
 	fmt.Println(holderNow)
 	for number, hoder := range holderNow {

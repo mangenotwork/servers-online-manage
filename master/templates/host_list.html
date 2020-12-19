@@ -25,12 +25,14 @@
 							  <el-table-column prop="slve_version" label="客户端版本"></el-table-column>
 							  <el-table-column prop="conn_time" label="连接时间"></el-table-column>
 						    <!--cpu  mem  -->
-						     <el-table-column fixed="right" label="操作" width="160">
+						     <el-table-column fixed="right" label="操作" width="88">
 						      <template slot-scope="scope">
-						        <el-button @click="handleClick(scope.row)" type="text" size="small">详情</el-button>
-						        <el-button type="text" size="small" @click="dialogVisible = true">监控</el-button>
-								  <el-badge is-dot class="item" ><el-button type="text" size="small" @click="dialogAlert = true">通知
-									  </el-button></el-badge>
+						        <el-button @click="handleClick(scope.row)" type="text" size="small">管理</el-button>
+						        <el-button @click="dockerClick(scope.row)" type="text" size="small">docker</el-button>
+								<el-badge is-dot class="item" >
+									<el-button type="text" size="small" @click="dialogAlert = true">通知</el-button>
+								</el-badge>
+
 						      </template>
 						    </el-table-column>
 						  </el-table>
@@ -138,6 +140,11 @@ new Vue({
         	console.log(row);
         	console.log("/slve/details/"+row.key);
 			window.location = "/slve/details/"+row.key;
+		},
+		dockerClick(row) {
+        	console.log(row);
+        	console.log("/slve/docker/"+row.key);
+			window.location = "/slve/docker/"+row.key;
 		},
 		getlist: function(){
 			let _this = this;

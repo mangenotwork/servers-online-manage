@@ -34,4 +34,10 @@ const (
 
 	//请求docker images相关
 	Docker_Images = 0x09
+
+	//请求docker 信息相关
+	Docker_Infos = 0x10
+
+	//请求docker container相关
+	Docker_Container = 0x11
 )

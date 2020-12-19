@@ -221,8 +221,11 @@ RetuenCpuInfo _Test()
 }
 
 char* WindowsGetCpuVendorId(){
-	char* vendor_id;
-	vendor_id = (char *)malloc(49);
+	//char* vendor_id;
+	//vendor_id = (char *)malloc(49);
+    
+    static char vendor_id[49];
+    
 	char buffer[49] = { '\0' };
     unsigned int num = 0;
 	memset((void *)buffer, '\0', sizeof(buffer));

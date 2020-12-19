@@ -94,7 +94,7 @@ func CatDockerFragmentPath() string {
 	return cmd.LinuxSendCommand("cat " + path)
 }
 
-//docker api 是否开启
+c
 //这里采用查看docker 配置文件ExecStart 的参数每个 -H
 //如果有tcp 说明开启，并返回api地址
 func DockerIsOpenAPI() (isOpen bool, url string) {

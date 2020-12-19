@@ -14,16 +14,19 @@ import (
 
 //获取cpu的VendorId
 func GetCpuVendorId() string {
-
-	//cStr := C.WindowsGetCpuVendorId()
+	//定义一个字符串指针接收C 函数返回值
 	var out *C.char = C.WindowsGetCpuVendorId()
-	a := C.GoString(out)
-	C.free(unsafe.Pointer(out))
-	return a
+	//释放这个指针  前提是使用了malloc
+	defer C.free(unsafe.Pointer(out))
+	return C.GoString(out)
 }
 
 func GetCpuVendorId1() string {
 	return C.GoString(C.WindowsGetCpuVendorId())
+}
+
+func GetCpuVendorId2() string {
+	return "aaa"
 }
 
 //获取cpu的 CpuId

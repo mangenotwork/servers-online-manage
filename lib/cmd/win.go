@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"os/exec"
-	"context"
 )
 
 //Windows Send Command Linux执行命令
@@ -30,7 +30,7 @@ func WindowsSendCommand(command []string) (opStr string) {
 		opStr = ""
 	}
 	opStr = string(opBytes)
-	log.Println(opStr)
+	//log.Println(opStr)
 	cmd.Wait()
 	return
 }

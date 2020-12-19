@@ -27,15 +27,16 @@ func Routers() *gin.Engine {
 		Router.GET("/", handler.PGHome)                     //首页
 		Router.GET("/sendfilepg", handler.PGUploadFileTest) //上传文件页面
 		Router.GET("/home", handler.PGHome)
-		Router.GET("/host", handler.PGHostList)     // 服务器
-		Router.GET("/property", handler.PGProperty) // 资产
-		Router.GET("/release", handler.PGRelease)   //部署
-		Router.GET("/alarm", handler.PGAlarm)       //警报与通知
-		Router.GET("/settings", handler.PGSettings) //设置
-		Router.GET("/user", handler.PGUserManage)   //账号管理
-		Router.GET("/help", handler.PGHelp)         //帮助
-		Router.Any("/SlveFile/*URL", handler.ZF) //转发测试
-		Router.GET("/slve/details/:slveId", handler.SlveDetails) //Slve详细信息
+		Router.GET("/host", handler.PGHostList)                  // 服务器
+		Router.GET("/property", handler.PGProperty)              // 资产
+		Router.GET("/release", handler.PGRelease)                //部署
+		Router.GET("/alarm", handler.PGAlarm)                    //警报与通知
+		Router.GET("/settings", handler.PGSettings)              //设置
+		Router.GET("/user", handler.PGUserManage)                //账号管理
+		Router.GET("/help", handler.PGHelp)                      //帮助
+		Router.Any("/SlveFile/*URL", handler.ZF)                 //转发测试
+		Router.GET("/slve/details/:slveId", handler.SlveDetails) //Slve详细信息与管理
+		Router.GET("/slve/docker/:slveId", handler.SlveDocker)   //Slve docker管理
 	}
 
 	//测试用的
@@ -73,7 +74,10 @@ func Routers() *gin.Engine {
 		//docker 相关的接口
 		DockerAPI_V1 := API.Group("/docker/v1")
 		{
-			DockerAPI_V1.GET("/images", handler.DockerImagesTest) //docker images
+			DockerAPI_V1.GET("/images", handler.DockerImagesTest)                    //docker images
+			DockerAPI_V1.GET("/infos/:slveId", handler.DockerInfos)                  //获取 selve docker 基本信息
+			DockerAPI_V1.GET("/images/list/:slveId", handler.DockerImagesList)       //获取slve images 列表
+			DockerAPI_V1.GET("/container/list/:slveId", handler.DockerContainerList) //获取slve container  列表
 		}
 	}
 

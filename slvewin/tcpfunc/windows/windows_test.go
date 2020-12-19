@@ -20,13 +20,14 @@ func TestGetCPUUse(t *testing.T) {
 
 	// WindowsGetUserDefaultLangID()
 
-	// c1 := GetCpuVendorId()
+	// c1 := GetCpuVendorId1()
 	// t.Log(c1)
 
 	for i := 1; i < 5000; i++ {
-		c1_1 := GetCpuVendorId()
+		c1_1 := GetCpuVendorId2()
 
 		t.Log(c1_1)
+		c1_1 = ""
 		time.Sleep(100 * time.Millisecond)
 	}
 

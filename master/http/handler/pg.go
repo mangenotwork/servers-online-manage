@@ -7,10 +7,11 @@ import (
 	"net/url"
 	"strings"
 
+	_ "net/http/httputil"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"github.com/mangenotwork/servers-online-manage/master/http/dao"
-	_"net/http/httputil"
 )
 
 //首页
@@ -89,24 +90,24 @@ func PGUploadFileTest(c *gin.Context) {
 func ZF(c *gin.Context) {
 	log.Println(c.Request.URL)
 	urlStr := c.Param("URL")
-	log.Println("url = ",urlStr)
-	curlList := strings.Split(urlStr,"/")
+	log.Println("url = ", urlStr)
+	curlList := strings.Split(urlStr, "/")
 	if len(curlList) < 3 {
 		c.String(200, "路由规则:  Domain/Slve/SlveIP/ , 不识别 Domain/Slve/SlveIP ")
 		return
 	}
-	for i, u := range curlList{
-		log.Println(i,u)
+	for i, u := range curlList {
+		log.Println(i, u)
 	}
 	slve := curlList[1]
-	slvehttp := "http://"+slve+":18383/"
-	log.Println("slvehttp = ",slvehttp)
+	slvehttp := "http://" + slve + ":18383/"
+	log.Println("slvehttp = ", slvehttp)
 	remote, err := url.Parse(slvehttp)
 	if err != nil {
 		log.Println(err)
 	}
 	log.Println("remote = ", remote)
-	curlstr := strings.Join(curlList[2:len(curlList)],"/")
+	curlstr := strings.Join(curlList[2:len(curlList)], "/")
 	log.Println("curlstr = ", curlstr)
 	curlstr = "/" + curlstr
 
@@ -118,5 +119,11 @@ func ZF(c *gin.Context) {
 //Slve 详情信息
 func SlveDetails(c *gin.Context) {
 	c.HTML(200, "slve_details.html", gin.H{})
+	return
+}
+
+//Slve Docker管理
+func SlveDocker(c *gin.Context) {
+	c.HTML(200, "slve_docker.html", gin.H{})
 	return
 }

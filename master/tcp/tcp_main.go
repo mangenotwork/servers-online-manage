@@ -69,9 +69,25 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		log.Println("发送文件成功！")
 		return
 
-		//接收slve返回的docker images 相关操作（方法）的包
+	//接收slve返回的docker images 相关操作（方法）的包
 	case pk.Docker_Images:
 		var callbackPacket structs.DockerImagesAction
+		json.Unmarshal(packet.PacketContent, &callbackPacket)
+		//将数据发送给chan
+		conn.Rdata <- string(callbackPacket.Packet)
+		return
+
+	//接收slve返回的 docker infos 数据
+	case pk.Docker_Infos:
+		var callbackPacket structs.DockerAction
+		json.Unmarshal(packet.PacketContent, &callbackPacket)
+		//将数据发送给chan
+		conn.Rdata <- string(callbackPacket.Packet)
+		return
+
+	//接收slve返回的docker container 相关操作（方法）的包
+	case pk.Docker_Container:
+		var callbackPacket structs.DockerContainerAction
 		json.Unmarshal(packet.PacketContent, &callbackPacket)
 		//将数据发送给chan
 		conn.Rdata <- string(callbackPacket.Packet)

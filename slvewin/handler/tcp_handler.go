@@ -133,7 +133,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		global.FilePackets = global.FilePackets[:0:0]
 		return
 
-		//请求docker images相关
+	//请求docker images相关
 	case pk.Docker_Images:
 		var dockerImagesPacket structs.DockerImagesAction
 		json.Unmarshal(packet.PacketContent, &dockerImagesPacket)
@@ -147,6 +147,16 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		SendPackat(conn, packetData, pk.Docker_Images)
 		return
 
+	//请求docker 信息相关
+	case pk.Docker_Infos:
+		data, err := tcpfunc.GetInfo()
+		packetData := &structs.DockerAction{
+			Action: "获取docker infos",
+			Packet: data,
+			Error:  err,
+		}
+		SendPackat(conn, packetData, pk.Docker_Infos)
+		return
 	}
 
 }

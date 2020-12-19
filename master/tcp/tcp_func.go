@@ -26,13 +26,13 @@ func SendData(c net.Conn, packet structs.Packet) {
 }
 
 //向客户端发送数据包
-func SendPacket(c net.Conn,s interface{},pactetType byte){
+func SendPacket(c net.Conn, s interface{}, pactetType byte) {
 	packetBytes, err := json.Marshal(s)
 	if err != nil {
 		log.Println(err.Error())
 	}
 	packet := structs.Packet{
-		PacketType:   pactetType,
+		PacketType:    pactetType,
 		PacketContent: packetBytes,
 	}
 	SendData(c, packet)
@@ -181,9 +181,30 @@ func SendFile2(conn net.Conn, f multipart.File, fileSize int64, filename string)
 }
 
 //获取Slve Docker 镜像列表
-func GetDockerImages(conn net.Conn){
+func GetDockerImages(conn net.Conn) {
 	active := structs.DockerImagesAction{
 		Action: "get_images_list",
 	}
-	SendPacket(conn,active,pk.Docker_Images)
+	SendPacket(conn, active, pk.Docker_Images)
+}
+
+//获取 Slve Docker 基本信息
+func GetDockerInfos(conn net.Conn) {
+	SendPacket(conn, "", pk.Docker_Infos)
+}
+
+//获取 Slve Docker 镜像列表
+func DockerImagesList(conn net.Conn) {
+	active := structs.DockerImagesAction{
+		Action: "list",
+	}
+	SendPacket(conn, active, pk.Docker_Images)
+}
+
+//获取 SLve Docker 容器列表
+func DockerContainerList(conn net.Conn) {
+	active := structs.DockerContainerAction{
+		Action: "list",
+	}
+	SendPacket(conn, active, pk.Docker_Container)
 }

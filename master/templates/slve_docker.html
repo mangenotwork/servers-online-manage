@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<<template "_head.html">>
+
+<el-main style="background-color: #F5F5F5;">
+    <el-row :gutter="20" style="margin-bottom: 8px;">
+        <el-col :span="24"><div class="grid-content host_table" style="height: 80%;">
+                <el-link href="/host" style="font-size: 18px;margin-bottom: 12px;"> > 服务器列表</el-link> <el-link type="primary" href="#" style="font-size: 18px;margin-bottom: 12px;"> > DESKTOP-77ATEHD</el-link>
+
+                <template>
+                  <el-tabs type="card" v-model="activeName" @tab-click="handleClick">
+
+                    <el-tab-pane label="Docker信息" name="a1" style="height: 80%" >
+
+                        <el-row :gutter="12">
+                            <el-col :span="6">
+                                <el-card shadow="hover" style="height: 180px;">
+                                  <span><b>系统</b></span><hr>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                </el-card>
+                              </el-col>
+                              <el-col :span="6">
+                                <el-card shadow="hover" style="height: 180px;">
+                                  <span><b>配置</b></span><hr>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                </el-card>
+                              </el-col>
+                              <el-col :span="6">
+                                <el-card shadow="hover" style="height: 180px;">
+                                  <span><b>网络</b></span><hr>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                </el-card>
+                              </el-col>
+                              <el-col :span="6">
+                                <el-card shadow="hover" style="height: 180px;">
+                                  <span><b>运行</b></span><hr>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                  <span>XFhjhjhdskj</span><br>
+                                </el-card>
+                              </el-col>
+                        </el-row>
+                      
+
+                    </el-tab-pane>
+
+                    <el-tab-pane label="镜像" name="a2">
+                            镜像
+                    </el-tab-pane>
+
+                    <el-tab-pane label="容器" name="a3">容器</el-tab-pane>
+
+                    <el-tab-pane label="部署" name="a5">部署</el-tab-pane>
+
+                    <el-tab-pane label="设置" name="a6">设置</el-tab-pane>
+
+                  </el-tabs>
+                </template>
+
+
+            </div>
+        </el-col>
+    </el-row>
+
+</el-main>
+</el-container>
+
+</div>
+
+</body>
+
+<<template "_echarts.html">>
+
+<script type="text/javascript">
+    let url = "/host";
+    new Vue({
+        el: "#app",
+        data: function () {
+            return {
+                menu: Enum(url),
+                activeName: 'a1'
+            }
+        },
+        methods:{
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+                window.location.href=keyPath;
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            },
+             handleClick(tab, event) {
+                console.log(tab, event);
+              }
+        }
+        // mounted: {
+        //     console.log("open");
+        // }
+    });
+
+</script>
+
+</html>
