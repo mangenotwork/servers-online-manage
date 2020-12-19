@@ -45,3 +45,31 @@ type DockerBaseInfo struct {
 	//docker 配置文件位置
 	//docker 进程ID
 }
+
+//镜像信息
+type ImageInfo struct {
+	ID         string `json:"id"`         //镜像ID
+	Repository string `json:"repository"` //镜像名
+	Tag        string `json:"tag"`        //镜像Tag
+	Digest     string `json:"digest"`     //镜像 digest
+	CreatedAt  string `json:"created"`    //镜像创建
+	Size       string `json:"size"`       //镜像大小
+}
+
+//容器信息
+type ContainerInfo struct {
+	ID         string `json:"id"`          //容器id
+	Name       string `json:"name"`        //容器名
+	CreatedAt  string `json:"created"`     //容器创建时间
+	Image      string `json:"image"`       //容器镜像
+	ImageID    string `json:"image_id"`    //容器镜像id
+	Command    string `json:"command"`     //执行容器的命令
+	State      string `json:"state"`       //容器状态
+	Status     string `json:"status"`      //容器状态
+	RunningFor string `json:"running_for"` //容器运行时间
+	Ports      string `json:"port_info"`   //容器使用的端口
+	Size       string `json:"size"`        //容器大小
+	Labels     string `json:"labels"`      //容器 Labels
+	Mounts     string `json:"mounts"`      //容器  Mounts
+	Networks   string `json:"networks"`    //容器 Networks
+}

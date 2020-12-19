@@ -71,7 +71,7 @@ func GetClient() (ctx context.Context, cli *client.Client, err error) {
 
 //docker images 列表
 func ImagesRun(cli *client.Client, ctx context.Context) ([]types.ImageSummary, error) {
-	images, err := cli.ImageList(ctx, types.ImageListOptions{})
+	images, err := cli.ImageList(ctx, types.ImageListOptions{All: true})
 	if err != nil {
 		log.Println(err)
 		return nil, err
