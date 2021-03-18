@@ -52,19 +52,18 @@ Reconnection:
 	go protocol.DePackSendData(client.Connection, handler.SlveTcpFunc)
 
 	//发送心跳的goroutine
-	// go func() {
-	// 	//测试是3秒
-	// 	//非测试则调整到 > 30 秒
-	// 	heartBeatTick := time.Tick(3 * time.Second)
-	// 	for {
-	// 		select {
-	// 		case <-heartBeatTick:
-	// 			handler.SendHeartPacket(client)
-	// 		case <-client.StopChan:
-	// 			return
-	// 		}
-	// 	}
-	// }()
+	go func() {
+		//5秒发送一次心跳
+		heartBeatTick := time.Tick(5 * time.Second)
+		for {
+			select {
+			case <-heartBeatTick:
+				handler.SendHeartPacket(client)
+			case <-client.StopChan:
+				return
+			}
+		}
+	}()
 
 	// //测试用的，开300个goroutine每秒发送一个包
 	// for i := 0; i < 300; i++ {
