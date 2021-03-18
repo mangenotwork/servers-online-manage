@@ -32,6 +32,7 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		beatPacket.HostIP = conn.Conn.RemoteAddr().String()
 		beatPacket.ConnTime = utils.DateTime(time.Now().Unix())
 		global.Slves[slveKey].SlveInfo = &beatPacket
+		//TODO 保存基础信息，如果数据库存在更新信息
 
 	//处理心跳
 	case pk.HEART_BEAT_PACKET:
@@ -40,6 +41,11 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		json.Unmarshal(packet.PacketContent, &beatPacket)
 		log.Printf("收到心跳数据 [%s] ,data is [%v]\n", conn.Conn.RemoteAddr().String(), beatPacket, *beatPacket.Performance)
 		//TODO: 处理数据，并保存
+		//1.存cpu
+		//2.存磁盘
+		//3.存网络
+
+		//TODO: 监控点
 
 		//收到返回
 		packet := structs.Packet{
