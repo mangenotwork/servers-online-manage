@@ -5,7 +5,7 @@
 <el-main style="background-color: #F5F5F5;">
     <el-row :gutter="20" style="margin-bottom: 8px;">
         <el-col :span="24"><div class="grid-content host_table" style="height: 80%;">
-                <el-link href="/host" style="font-size: 18px;margin-bottom: 12px;"> > 服务器列表</el-link> <el-link type="primary" href="#" style="font-size: 18px;margin-bottom: 12px;"> > DESKTOP-77ATEHD</el-link>
+                <el-link href="/host" style="font-size: 18px;margin-bottom: 12px;"> > 服务器列表</el-link> <el-link type="primary" href="#" style="font-size: 18px;margin-bottom: 12px;"> > <<.data.Name>></el-link>
 
                 <template>
                   <el-tabs type="card" v-model="activeName" @tab-click="handleClick">
@@ -14,59 +14,58 @@
 
                         <el-row :gutter="12">
                             <el-col :span="6">
-                                <el-card shadow="hover" style="height: 180px;">
+                                <el-card shadow="hover" style="height: 210px;">
                                   <span><b>系统</b></span><hr>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
+                                  <span><<.data.SysType>></span><br>
+                                  <span><<.data.OsName>></span><br>
                                 </el-card>
                               </el-col>
                               <el-col :span="6">
-                                <el-card shadow="hover" style="height: 180px;">
+                                <el-card shadow="hover" style="height: 210px;">
                                   <span><b>配置</b></span><hr>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
+                                  <span>cpu: <<.data.CpuName>>(<<.data.CpuCoreNumber>>)</span><br>
+                                  <span>cpu id: <<.data.CpuID>></span><br>
+                                  <span>内存: <<.data.MemTotal>></span><br>
+                                  <span>磁盘: <<.data.DiskTotal>></span><br>
                                 </el-card>
                               </el-col>
                               <el-col :span="6">
-                                <el-card shadow="hover" style="height: 180px;">
-                                  <span><b>网络</b></span><hr>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
+                                <el-card shadow="hover" style="height: 210px;">
+                                  <span><b>架构</b></span><hr>
+                                  <span><<.data.SysArchitecture>></span><br>
                                 </el-card>
                               </el-col>
                               <el-col :span="6">
-                                <el-card shadow="hover" style="height: 180px;">
-                                  <span><b>运行</b></span><hr>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
-                                  <span>XFhjhjhdskj</span><br>
+                                <el-card shadow="hover" style="height: 210px;">
+                                  <span><b>提示</b></span><hr>
+                                  <span style="color: red;"><<.tip>></span><br>
+                                  
                                 </el-card>
                               </el-col>
                         </el-row>
                         <el-row :gutter="12">
-                            <el-col :span="12">
-                                <el-card shadow="hover" style="height: 340px;">
-                                  <div id="ecs1" style="width: 100%;height:300px;"></div>
+                            <el-col :span="8" style="padding: 24px;">
+                                <el-card shadow="hover" style="height: 280px;">
+                                  <div id="ecs1" style="width: 100%;height:240px;"></div>
                                 </el-card>
-                              </el-col>
-                              <el-col :span="12">
-                                <el-card shadow="hover" style="height: 340px;">
-                                  <div id="ecs2" style="width: 100%;height:300px;"></div>
+                            </el-col>
+
+                            <el-col :span="8" style="padding: 24px;">
+                                <el-card shadow="hover" style="height: 280px;">
+                                  <div id="ecs2" style="width: 100%;height:240px;"></div>
                                 </el-card>
-                              </el-col>
+                            </el-col>
+
+                            <el-col :span="8" style="padding: 24px;">
+                                <el-card shadow="hover" style="height: 280px;">
+                                  <div id="ecs3" style="width: 100%;height:240px;"></div>
+                                </el-card>
+                            </el-col>
+
                         </el-row>
                         <el-row :gutter="12">
-                            <el-col :span="12">
-                                <el-card shadow="hover" style="height: 340px;">
-                                  <div id="ecs3" style="width: 100%;height:300px;"></div>
-                                </el-card>
-                              </el-col>
-                              <el-col :span="12">
+                            
+                              <el-col :span="12" style="padding: 24px;">
                                 <el-card shadow="hover" style="height: 340px;">
                                   <div id="ecs4" style="width: 100%;height:300px;"></div>
                                 </el-card>
@@ -141,35 +140,55 @@
             handleClose(key, keyPath) {
                 console.log(key, keyPath);
             },
-             handleClick(tab, event) {
+            handleClick(tab, event) {
                 console.log(tab, event);
+            },
+            getData(){
               }
+
+        },
+        mounted:{
+
+        
         }
-        // mounted: {
-        //     console.log("open");
-        // }
     });
+
+
+$.ajax({
+   type:'get',
+   url:'/api/slve/v1/echart/base/b7b82284d142977884440750f0978470',
+    dataType:'json',
+    contentType: "application/json",
+    async:false,
+    success:function (json){
+       console.log(json);
+    },
+   error:function (){
+      //弹错误框
+      console.log("请求失败");
+    }
+});
 
 
     //ecs1 
     let Chart1 = echarts.init(document.getElementById('ecs1'));
-    let timeData1 = ['1日', '2日', '3日', '4日', '5日', '6日', '7日','8日','9日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日','21日','22日','23日','24日','25日','26日','27日','28日','29日','30日'];
-    let showData1 = [5, 1, 6, 4, 2, 5, 3,2,8,6,2,3,0,8,5,6,7,2,7,5,3,7,2,3,4,5,7,7.5,8,7];
-    let option1 = LineChartData1("CPU使用率",timeData1,showData1)
+    let timeData1 = ['00:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00',"22:00"];
+    let showData1 = ['1200', '1400', '1008', '1411', '1026', '1288', '1300', '800', '1100', '1000', '1118', '1322'];
+    let option1 = LineChartData3("CPU使用率",["总使用率"],timeData1,showData1)
     Chart1.setOption(option1);
 
     //ecs2
     let Chart2 = echarts.init(document.getElementById('ecs2'));
-    let timeData2 = ['1日', '2日', '3日', '4日', '5日', '6日', '7日','8日','9日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日','21日','22日','23日','24日','25日','26日','27日','28日','29日','30日'];
-    let showData2 = [5, 1, 6, 4, 2, 5, 3,2,8,6,2,3,0,8,5,6,7,2,7,5,3,7,2,3,4,5,7,7.5,8,7];
-    let option2 = LineChartData1("内存使用率",timeData2,showData2)
+    let timeData2 = ['00:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00',"22:00"];
+    let showData2 = ['1200', '1400', '1008', '1411', '1026', '1288', '1300', '800', '1100', '1000', '1118', '1322'];
+    let option2 = LineChartData3("内存使用率",["内存使用率"],timeData2,showData2)
     Chart2.setOption(option2);
 
     //ecs3
     let Chart3 = echarts.init(document.getElementById('ecs3'));
-    let timeData3 = ['1日', '2日', '3日', '4日', '5日', '6日', '7日','8日','9日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日','21日','22日','23日','24日','25日','26日','27日','28日','29日','30日'];
-    let showData3 = [5, 1, 6, 4, 2, 5, 3,2,8,6,2,3,0,8,5,6,7,2,7,5,3,7,2,3,4,5,7,7.5,8,7];
-    let option3 = LineChartData1("磁盘使用率",timeData3,showData3)
+    let timeData3=['00:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00',"22:00"];
+    let showData3=['1200', '1400', '1008', '1411', '1026', '1288', '1300', '800', '1100', '1000', '1118', '1322'];
+    let option3 = LineChartData3("磁盘使用率",["总使用率"],timeData3,showData3)
     Chart3.setOption(option3);
 
     //ecs4

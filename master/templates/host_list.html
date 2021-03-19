@@ -16,14 +16,15 @@
 						    style="width: 100%">
 						    <el-table-column prop="host_name" label="计算机Name"></el-table-column>
 						    <el-table-column prop="host_ip" label="TCP通讯地址"></el-table-column>
-						    <el-table-column prop="sys_info.os_name" label="系统"></el-table-column>
-							  <el-table-column prop="sys_info.sys_architecture" label="架构"></el-table-column>
-							  <el-table-column prop="sys_info.cpu_name" label="CPU"></el-table-column>
-							  <el-table-column prop="sys_info.cpu_core_number" label="cpu核心数"></el-table-column>
-							  <el-table-column prop="sys_info.mem_totle" label="内存大小"></el-table-column>
-							  <el-table-column prop="sys_info.disk_totle" label="磁盘大小"></el-table-column>
-							  <el-table-column prop="slve_version" label="客户端版本"></el-table-column>
-							  <el-table-column prop="conn_time" label="连接时间"></el-table-column>
+						    <el-table-column prop="os_name" label="系统"></el-table-column>
+							<el-table-column prop="sys_architecture" label="架构"></el-table-column>
+							<el-table-column prop="cpu_name" label="CPU"></el-table-column>
+							<el-table-column prop="cpu_core_number" label="cpu核心数"></el-table-column>
+							<el-table-column prop="mem_totle" label="内存大小"></el-table-column>
+							<el-table-column prop="disk_totle" label="磁盘大小"></el-table-column>
+							<el-table-column prop="slve_version" label="客户端版本"></el-table-column>
+							<el-table-column prop="last_conn_time" label="上次连接时间"></el-table-column>
+							<el-table-column prop="online" label="是否在线" :formatter="IsOnline"></el-table-column>
 						    <!--cpu  mem  -->
 						     <el-table-column fixed="right" label="操作" width="88">
 						      <template slot-scope="scope">
@@ -138,13 +139,13 @@ new Vue({
       	},
       	handleClick(row) {
         	console.log(row);
-        	console.log("/slve/details/"+row.key);
-			window.location = "/slve/details/"+row.key;
+        	console.log("/slve/details/"+row.uuid);
+			window.location = "/slve/details/"+row.uuid;
 		},
 		dockerClick(row) {
         	console.log(row);
-        	console.log("/slve/docker/"+row.key);
-			window.location = "/slve/docker/"+row.key;
+        	console.log("/slve/docker/"+row.uuid);
+			window.location = "/slve/docker/"+row.uuid;
 		},
 		getlist: function(){
 			let _this = this;
@@ -164,6 +165,7 @@ new Vue({
 				}
 			});
 		},
+
 		//监控设置
 		monitorPopup: function (){
 			$('#blk').show();
@@ -174,6 +176,10 @@ new Vue({
 		},
 		hello: function (){
 			alert('Hello World!');
+		},
+
+		IsOnline: function(row) {
+			return row.online===true?"在线":"离线";
 		}
 	},
 	mounted:function(){

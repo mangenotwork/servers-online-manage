@@ -239,4 +239,123 @@ function LineChartData2(titleStr, objNameList, timeData, objData1, objData2){
     return rdata;
 }
 
+
+
+//折现图 - 网络IO, 磁盘IO 图表数据
+function LineChartData3(titleStr, objNameList, timeData, objData1){
+    let rdata = {
+        backgroundColor:'#ffffff',
+        title: {
+            textStyle:{
+              color:"#6a9cd5",
+          },
+          text: titleStr,
+          left:"center",
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                lineStyle: {
+                    color: '#ddd'
+                }
+            },
+            backgroundColor: 'rgba(255,255,255,1)',
+            padding: [5, 10],
+            textStyle: {
+                color: '#7588E4',
+            },
+            extraCssText: 'box-shadow: 0 0 5px rgba(0,0,0,0.3)'
+        },
+        grid: {//统计图距离边缘的距离
+            top: '12%',
+            left: '10%',
+            right: '10%',
+            bottom: '12%'
+        },
+        legend: {
+            right: 20,
+            orient: 'vertical',
+            data: objNameList
+        },
+        xAxis: {
+            type: 'category',
+            data: timeData,
+            boundaryGap: false,
+            splitLine: {
+                show: true,
+                interval: 'auto',
+                lineStyle: {
+                    color: ['#D4DFF5']
+                }
+            },
+            axisTick: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#609ee9'
+                }
+            },
+            axisLabel: {
+                margin: 10,
+                textStyle: {
+                    fontSize: 14
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            splitLine: {
+                lineStyle: {
+                    color: ['#D4DFF5']
+                }
+            },
+            axisTick: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#609ee9'
+                }
+            },
+            axisLabel: {
+                margin: 10,
+                textStyle: {
+                    fontSize: 14
+                }
+            }
+        },
+        series: [{
+            name: objNameList[0],
+            type: 'line',
+            smooth: true,
+            showSymbol: false,
+            symbol: 'circle',
+            symbolSize: 6,
+            data: objData1,
+            areaStyle: {
+                normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(199, 237, 250,0.5)'
+                    }, {
+                        offset: 1,
+                        color: 'rgba(199, 237, 250,0.2)'
+                    }], false)
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#f7b851'
+                }
+            },
+            lineStyle: {
+                normal: {
+                    width: 3
+                }
+            }
+            }]
+    };
+    return rdata;
+}
 </script>

@@ -30,8 +30,8 @@ type HeartPacket struct {
 	IP          string               `json:"slve_ip"` //ip+port
 	System      string               `json:"system"`
 	HostName    string               `json:"host_name"`
-	UseCPU      string               `json:"use_mem"`
-	UseMEM      string               `json:"use_mem"`
+	UseCPU      float32              `json:"use_mem"`
+	UseMEM      int64                `json:"use_mem"`
 	Timestamp   int64                `json:"timestamp"`
 	Performance *SlvePerformanceData `json:"performance"`
 }
@@ -76,8 +76,12 @@ type Cli struct {
 
 //Slve 基本信息
 type SlveBaseInfo struct {
+<<<<<<< HEAD
 	// TODO 计算机唯一id
 
+=======
+	SlveUUID string `json:"uuid"`
+>>>>>>> bde6bb7cc544388be5e043fd787de69d0c486859
 	//取Slve的key
 	SlveKey string `json:"key"`
 	//Master 颁发的Token
