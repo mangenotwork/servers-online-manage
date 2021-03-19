@@ -9,8 +9,11 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"github.com/mangenotwork/servers-online-manage/lib/utils"
 
+	"github.com/mangenotwork/servers-online-manage/lib/loger"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
+	"github.com/mangenotwork/servers-online-manage/master/http/dao"
+	"github.com/mangenotwork/servers-online-manage/master/http/models"
 )
 
 //Master接收的具体业务
@@ -33,6 +36,29 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		beatPacket.ConnTime = utils.DateTime(time.Now().Unix())
 		global.Slves[slveKey].SlveInfo = &beatPacket
 		//TODO 保存基础信息，如果数据库存在更新信息
+		slveBaseDao := new(dao.SlveBaseInfoDao)
+		slveBaseDao.Data = &models.SlveBaseInfo{
+			SlveUUID:        beatPacket.SlveUUID,
+			Name:            beatPacket.Name,
+			SetName:         beatPacket.SetName,
+			HostIP:          beatPacket.HostIP,
+			SysType:         beatPacket.SysType,
+			SlveVersion:     beatPacket.SlveVersion,
+			LastConn:        beatPacket.ConnTime,
+			OsName:          beatPacket.SysInfo.OsName,
+			SysArchitecture: beatPacket.SysInfo.SysArchitecture,
+			CpuCoreNumber:   beatPacket.SysInfo.CpuCoreNumber,
+			CpuName:         beatPacket.SysInfo.CpuName,
+			CpuID:           beatPacket.SysInfo.CpuID,
+			BaseBoardID:     beatPacket.SysInfo.BaseBoardID,
+			MemTotal:        beatPacket.SysInfo.MemTotal,
+			DiskTotal:       beatPacket.SysInfo.DiskTotal,
+		}
+		if !slveBaseDao.IsHave(beatPacket.SlveUUID) {
+			slveBaseDao.Create()
+		} else {
+			slveBaseDao.Update()
+		}
 
 	//处理心跳
 	case pk.HEART_BEAT_PACKET:
@@ -40,10 +66,79 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		var beatPacket structs.HeartPacket
 		json.Unmarshal(packet.PacketContent, &beatPacket)
 		log.Printf("收到心跳数据 [%s] ,data is [%v]\n", conn.Conn.RemoteAddr().String(), beatPacket, *beatPacket.Performance)
-		//TODO: 处理数据，并保存
+
+		//处理数据，并保存
+
 		//1.存cpu
+		cpuDao := new(dao.CPURateDao)
+		cpuDao.Datas = make([]*models.CPURate, 0)
+		cpuDao.Datas = append(cpuDao.Datas, &models.CPURate{
+			SlveUUID: beatPacket.SlveId,
+			Time:     beatPacket.Timestamp,
+			IsMain:   1,
+			CPU:      beatPacket.Performance.CpuRate.CPU,
+			UseRate:  beatPacket.Performance.CpuRate.UseRate,
+		})
+		//cpuDao.Create()
+		for _, v := range beatPacket.Performance.CpucoreRate {
+			cpuDao.Datas = append(cpuDao.Datas, &models.CPURate{
+				SlveUUID: beatPacket.SlveId,
+				Time:     beatPacket.Timestamp,
+				IsMain:   0,
+				CPU:      v.CPU,
+				UseRate:  v.UseRate,
+			})
+		}
+		cpuDao.Creates()
+
 		//2.存磁盘
+		diskDao := new(dao.DiskInfoDao)
+		diskDao.Datas = make([]*models.DiskInfo, 0)
+		for _, v := range beatPacket.Performance.DiskInfo {
+			diskDao.Datas = append(diskDao.Datas, &models.DiskInfo{
+				SlveUUID:    beatPacket.SlveId,
+				Time:        beatPacket.Timestamp,
+				DiskName:    v.DiskName,
+				DistType:    v.DistType,
+				DistTotalMB: v.DistTotalMB,
+				Total:       v.DistUse.Total,
+				Free:        v.DistUse.Free,
+				Rate:        v.DistUse.Rate,
+			})
+		}
+		diskDao.Creates()
+
 		//3.存网络
+		networkDao := new(dao.NetworkIODao)
+		networkDao.Datas = make([]*models.NetworkIO, 0)
+		for _, v := range beatPacket.Performance.NetworkIO {
+			networkDao.Datas = append(networkDao.Datas, &models.NetworkIO{
+				SlveUUID: beatPacket.SlveId,
+				Time:     beatPacket.Timestamp,
+				Name:     v.Name,
+				Tx:       v.Tx,
+				Rx:       v.Rx,
+			})
+		}
+		networkDao.Creates()
+
+		//4.存内存
+		memDao := new(dao.MEMInfoDao)
+		used := beatPacket.Performance.MemInfo.MemUsed
+		total := beatPacket.Performance.MemInfo.MemTotal
+		rate := (float32(used) / float32(total)) * 100
+		loger.Debug("mem Rate = ", rate, used, total)
+		memDao.Data = &models.MEMInfo{
+			SlveUUID: beatPacket.SlveId,
+			Time:     beatPacket.Timestamp,
+			Total:    beatPacket.Performance.MemInfo.MemTotal,
+			Used:     beatPacket.Performance.MemInfo.MemUsed,
+			Free:     beatPacket.Performance.MemInfo.MemFree,
+			Rate:     rate,
+			Buffers:  beatPacket.Performance.MemInfo.MemBuffers,
+			Cached:   beatPacket.Performance.MemInfo.MemCached,
+		}
+		memDao.Create()
 
 		//TODO: 监控点
 

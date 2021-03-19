@@ -40,7 +40,7 @@ func Debug(v ...interface{}) {
 	fun := runtime.FuncForPC(pc)
 	funName := fun.Name()
 
-	s := fmt.Sprintf(" | [Unix:%d] | \033[1;34;1m[DEBUG]\033[0m | \033[1;37;1m[F=%s:%d] | [N=%s] \033[0m| ",
+	s := fmt.Sprintf("%s | [Unix:%d] | \033[1;34;1m[DEBUG]\033[0m | \033[1;37;1m[F=%s:%d] | [N=%s] \033[0m| ", t.Format("2006-01-02 03:04:05"),
 		t.Unix(), file, line, funName)
 	for _, i := range v {
 

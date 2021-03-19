@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"os"
 	"strings"
@@ -15,6 +13,7 @@ import (
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/utils"
 	"github.com/mangenotwork/servers-online-manage/master/db"
 	"github.com/mangenotwork/servers-online-manage/master/http"
 	"github.com/mangenotwork/servers-online-manage/master/http/models"
@@ -80,10 +79,10 @@ func RunMasterTCP() {
 		}
 		notif.Create()
 
-		//客户端连接成功给他颁发一个Token
+		//客户端连接成功给他颁发一个 随机字符串
 		packet := structs.Packet{
 			PacketType:    pk.SET_SLVE_TOKEN_PACKET,
-			PacketContent: []byte(getRandString()),
+			PacketContent: []byte(utils.GetRandString(10)),
 		}
 		tcp.SendData(conn, packet)
 
@@ -122,30 +121,6 @@ func checkErr(err error) {
 
 //初始化配置
 func InitConf() {
-	//读取配置文件
-	file, _ := os.Open("conf/master_conf.json")
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	masterconf := structs.MasterConf{}
-	err := decoder.Decode(&masterconf)
-	if err != nil {
-		log.Println("Error:", err)
-	}
-	log.Println("masterconf = ", &masterconf)
-
-	//给全局变量赋值
-	global.Version = masterconf.Version
-	global.MasterHost = masterconf.MasterHost
-
+	masterconf := utils.InitMasterConf()
 	db.CheckSqlitDB(masterconf.SqlistDBFile)
-}
-
-//拿一串随机字符
-func getRandString() string {
-	length := rand.Intn(50)
-	strBytes := make([]byte, length)
-	for i := 0; i < length; i++ {
-		strBytes[i] = byte(rand.Intn(26) + 97)
-	}
-	return string(strBytes)
 }

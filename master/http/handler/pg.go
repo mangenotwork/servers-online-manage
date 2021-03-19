@@ -118,7 +118,26 @@ func ZF(c *gin.Context) {
 
 //Slve 详情信息
 func SlveDetails(c *gin.Context) {
-	c.HTML(200, "slve_details.html", gin.H{})
+
+	//获取基础信息
+	slveId := c.Param("slveId")
+	slveDao := new(dao.SlveBaseInfoDao)
+	err := slveDao.GetFromUUID(slveId)
+	if err != nil {
+		//错误页
+		c.HTML(200, "slve_details.html", gin.H{})
+		return
+	}
+	slveDao.IsOnline()
+	tip := ""
+	if !slveDao.Data.Online {
+		tip = "离线状态!"
+	}
+
+	c.HTML(200, "slve_details.html", gin.H{
+		"data": slveDao.Data,
+		"tip":  tip,
+	})
 	return
 }
 

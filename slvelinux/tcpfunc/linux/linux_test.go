@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestRun(t *testing.T){
+func TestRun(t *testing.T) {
 	//a,v := ProcVersion()
 	//t.Log(a)
 	//t.Log(v)
@@ -14,7 +14,7 @@ func TestRun(t *testing.T){
 	//	t.Log(v1)
 	//}
 
-	//GetCPUIDFromLinux()
+	GetCPUIDFromLinux()
 
 	//a2 := ProcMeminfo()
 	//t.Log(a2)
@@ -41,5 +41,5 @@ func TestRun(t *testing.T){
 	//a9 := GetProcessList()
 	//t.Log(len(a9),a9)
 
-	GetSysEnv()
+	//GetSysEnv()
 }

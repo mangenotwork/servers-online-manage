@@ -1,6 +1,10 @@
 package utils
 
 import (
+	"crypto/md5"
+	"fmt"
+	"io"
+	"math/rand"
 	"regexp"
 	"strconv"
 )
@@ -80,10 +84,27 @@ func Num2Int64(s string) int64 {
 
 //数字类字符串 转 int
 func Num2Int(s string) int {
-	innum,err :=  strconv.Atoi(s)
+	innum, err := strconv.Atoi(s)
 	if err != nil {
 		return 0
 	}
 	return innum
 }
 
+//随机字符
+// length 指定长度
+func GetRandString(length int) string {
+	strBytes := make([]byte, length)
+	for i := 0; i < length; i++ {
+		strBytes[i] = byte(rand.Intn(26) + 97)
+	}
+	return string(strBytes)
+}
+
+// 字符串Md5
+func Str2MD5(str string) string {
+	w := md5.New()
+	io.WriteString(w, str)
+	md5str := fmt.Sprintf("%x", w.Sum(nil))
+	return md5str
+}

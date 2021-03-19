@@ -29,6 +29,9 @@ var (
 	//master颁发给slve的token
 	SlveToken string
 
+	//slve 的 uuid
+	SlveUUID string
+
 	//客户端保存文件包
 	FilePackets = make([]*structs.SendFilePacket, 0)
 
@@ -68,8 +71,8 @@ func SlveLen() int {
 }
 
 //删除 Slve
-func DelSlve(key string){
+func DelSlve(key string) {
 	SlvesLock.RLock()
 	defer SlvesLock.RUnlock()
-	delete(Slves,key)
+	delete(Slves, key)
 }
