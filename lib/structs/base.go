@@ -76,6 +76,8 @@ type Cli struct {
 
 //Slve 基本信息
 type SlveBaseInfo struct {
+	// TODO 计算机唯一id
+
 	//取Slve的key
 	SlveKey string `json:"key"`
 	//Master 颁发的Token

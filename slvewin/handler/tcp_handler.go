@@ -32,6 +32,9 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 		//回复Master的一包，包含所有信息
 		hostinfo := sys2go.GetHostInfo()
 		sysinfo := tcpfunc.SysInfos()
+
+		//TODO 计算 uuid   由计算机唯一id得到
+
 		packetData := &structs.SlveBaseInfo{
 			Token:       global.SlveToken,
 			Name:        hostinfo.HostName,
