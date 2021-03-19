@@ -151,3 +151,33 @@ func DockerImagesTest(c *gin.Context) {
 		"data": data,
 	})
 }
+
+//GetEchartBaseData  获取Slve性能基础图表数据
+func GetEchartBaseData(c *gin.Context) {
+	uuid := c.Param("slveId")
+	//获取cpu使用率 得到时间段
+	cpuDao := new(dao.CPURateDao)
+	cpuDao.GetListFromTimeMainCPU(uuid, 3)
+	timeList, showTime, cpuShowData := cpuDao.EchartData(20)
+	loger.Debug("timeList = ", timeList)
+	//获取内存使用率
+	memDao := new(dao.MEMInfoDao)
+	memDao.GetFromTimes(timeList)
+	memShowData := memDao.EchartData()
+	//获取磁盘IO
+	// diskDao := new(dao.DiskInfoDao)
+	// diskDao.GetFromTimes(timeList)
+	// diskShowData := diskDao.EchartData()
+	//获取网络
+	networkDao := new(dao.NetworkIODao)
+	networkDao.GetFromTimes(timeList)
+	txShowData, rxShowData := networkDao.EchartData()
+
+	c.JSON(200, gin.H{
+		"showTime":    showTime,
+		"cpuShowData": cpuShowData,
+		"memShowData": memShowData,
+		"txShowData":  txShowData,
+		"rxShowData":  rxShowData,
+	})
+}

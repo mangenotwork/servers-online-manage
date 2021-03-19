@@ -27,3 +27,22 @@ func (d *NetworkIODao) Creates() (err error) {
 	}
 	return
 }
+
+//
+func (d *NetworkIODao) GetFromTimes(t []int64) (err error) {
+	db := dbconn.Conn()
+	defer db.Close()
+	err = db.Model(models.NetworkIO{}).Where("time in (?)", t).Find(&d.Datas).Error
+	return
+}
+
+// 图表需要的数据,平均取n个
+func (d *NetworkIODao) EchartData() (map[string][]float32, map[string][]float32) {
+	txshowData := make(map[string][]float32, 0)
+	rxshowData := make(map[string][]float32, 0)
+	for _, v := range d.Datas {
+		txshowData[v.Name] = append(txshowData[v.Name], v.Tx)
+		rxshowData[v.Name] = append(txshowData[v.Name], v.Rx)
+	}
+	return txshowData, rxshowData
+}

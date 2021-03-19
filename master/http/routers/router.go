@@ -53,10 +53,9 @@ func Routers() *gin.Engine {
 		//slve 相关的接口
 		SlveAPI := API.Group("/slve/v1")
 		{
-			SlveAPI.GET("/ip/list", handler.GetSlveIPList) //获取当前连接 slve IP
-			SlveAPI.GET("/list", handler.GetSlveList)      //slve 列表, 包含了基本信息
-			//获取slve详细信息
-			//给slve设置一个名称
+			SlveAPI.GET("/ip/list", handler.GetSlveIPList)                 //获取当前连接 slve IP
+			SlveAPI.GET("/list", handler.GetSlveList)                      //slve 列表, 包含了基本信息
+			SlveAPI.GET("/echart/base/:slveId", handler.GetEchartBaseData) //获取Slve性能基础图表数据
 		}
 
 		//警报与通知 	alarm  相关接口

@@ -140,14 +140,34 @@
             handleClose(key, keyPath) {
                 console.log(key, keyPath);
             },
-             handleClick(tab, event) {
+            handleClick(tab, event) {
                 console.log(tab, event);
+            },
+            getData(){
               }
+
+        },
+        mounted:{
+
+        
         }
-        // mounted: {
-        //     console.log("open");
-        // }
     });
+
+
+$.ajax({
+   type:'get',
+   url:'/api/slve/v1/echart/base/b7b82284d142977884440750f0978470',
+    dataType:'json',
+    contentType: "application/json",
+    async:false,
+    success:function (json){
+       console.log(json);
+    },
+   error:function (){
+      //弹错误框
+      console.log("请求失败");
+    }
+});
 
 
     //ecs1 

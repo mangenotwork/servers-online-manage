@@ -30,3 +30,20 @@ func (d *DiskInfoDao) Creates() (err error) {
 	}
 	return
 }
+
+//
+func (d *DiskInfoDao) GetFromTimes(t []int64) (err error) {
+	db := dbconn.Conn()
+	defer db.Close()
+	err = db.Model(models.DiskInfo{}).Where("time in (?)", t).Find(&d.Datas).Error
+	return
+}
+
+// 图表需要的数据,平均取n个
+func (d *DiskInfoDao) EchartData() []float32 {
+	showData := make([]float32, 0)
+	for _, v := range d.Datas {
+		showData = append(showData, v.Rate)
+	}
+	return showData
+}
