@@ -41,6 +41,7 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 			SysType:     hostinfo.SysType,
 			SysInfo:     sysinfo,
 			SlveVersion: global.SlveVersion,
+			SlveUUID:    global.SlveUUID,
 		}
 		SendPackat(conn, packetData, pk.FIRST_PACKET)
 		return
@@ -213,17 +214,21 @@ func SendPackat(c net.Conn, s interface{}, packetType byte) {
 //发送心跳包，与发送数据包一样
 //心跳包包含了当前slve的 资源使用情况
 func SendHeartPacket(client *structs.TcpClient) {
+
 	heartPacket := structs.HeartPacket{
-		Version:     global.SlveVersion,
-		SlveId:      global.SlveToken,
-		IP:          sys2go.GetMyIP(),
-		System:      sys2go.GetSysType(),
-		HostName:    sys2go.GetHostName(),
-		UseCPU:      "28%",
-		UseMEM:      "28%",
-		Timestamp:   time.Now().Unix(),
-		Performance: tcpfunc.GetPerformance(),
+		Version:   global.SlveVersion,
+		SlveId:    global.SlveUUID,
+		IP:        sys2go.GetMyIP(),
+		System:    sys2go.GetSysType(),
+		HostName:  sys2go.GetHostName(),
+		Timestamp: time.Now().Unix(),
 	}
+	//采集性能
+	performance := tcpfunc.GetPerformance()
+	heartPacket.UseCPU = performance.CpuRate.UseRate
+	heartPacket.UseMEM = performance.MemInfo.MemUsed
+	heartPacket.Performance = performance
+
 	log.Println(*heartPacket.Performance)
 	packetBytes, err := json.Marshal(heartPacket)
 	if err != nil {

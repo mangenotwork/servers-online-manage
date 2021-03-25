@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"log"
 	"net"
@@ -12,6 +11,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	"github.com/mangenotwork/servers-online-manage/lib/protocol"
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
+	"github.com/mangenotwork/servers-online-manage/lib/utils"
 	"github.com/mangenotwork/servers-online-manage/slve/handler"
 )
 
@@ -109,23 +109,7 @@ Reconnection:
 
 //初始化配置
 func InitConf() {
-	//读取配置文件
-	file, _ := os.Open("conf/slve_conf.json")
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	slveconf := structs.SlveConf{}
-	err := decoder.Decode(&slveconf)
-	if err != nil {
-		log.Println("Error:", err)
-		log.Println("读取配置文件 conf/slve_conf.json 失败 ！")
-		os.Exit(1)
-	}
-	log.Println("slveconf = ", &slveconf)
-
-	//给全局变量赋值
-	global.SlveVersion = slveconf.Version
-	global.MasterHost = slveconf.MasterHost
-	global.SlveSpace = slveconf.SlveSpace
+	utils.InitSlveConf()
 
 	//检查空间
 	os.Mkdir(global.SlveSpace, os.ModePerm)
