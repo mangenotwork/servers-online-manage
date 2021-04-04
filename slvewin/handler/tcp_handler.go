@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mangenotwork/servers-online-manage/lib/loger"
+
 	"github.com/mangenotwork/servers-online-manage/lib/cmd"
 	"github.com/mangenotwork/servers-online-manage/lib/global"
 	pk "github.com/mangenotwork/servers-online-manage/lib/packet"
@@ -17,6 +19,7 @@ import (
 	"github.com/mangenotwork/servers-online-manage/lib/structs"
 	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc"
 	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/sys2go"
+	"github.com/mangenotwork/servers-online-manage/slve/tcpfunc/windows"
 )
 
 var lock = &sync.Mutex{}
@@ -174,6 +177,26 @@ func SlveTcpFunc(conn net.Conn, packet *structs.Packet) {
 			Error:  err,
 		}
 		SendPackat(conn, packetData, pk.Docker_Images)
+		return
+
+	//获取pid list
+	case pk.GET_SLVE_PID_LIST:
+		loger.Debug("获取 pid list")
+
+		count, pidlist := windows.GetWindowsPIDInfo()
+		loger.Debug(count, pidlist)
+
+		conn.Write(Str2Bytes("获取 pid list", pk.GET_SLVE_PID_LIST))
+		return
+
+	//获取环境变量
+	case pk.GET_SLVE_ENV:
+		loger.Debug("获取环境变量")
+
+		env := windows.GetEnvironment("PATH")
+		loger.Debug(env)
+
+		conn.Write(Str2Bytes("获取环境变量", pk.GET_SLVE_PID_LIST))
 		return
 	}
 

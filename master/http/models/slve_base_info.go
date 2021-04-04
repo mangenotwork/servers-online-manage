@@ -22,6 +22,8 @@ type SlveBaseInfo struct {
 	DiskTotal       string `grom:"column:disk_totle" json:"disk_totle"`
 	Note            string `grom:"column:note" json:"note"` //备注
 	Online          bool   `grom:"-" json:"online"`
+	MemUsed         string `grom:"column:mem_used" json:"mem_used"`   //以使用的内存
+	DiskUsed        string `grom:"column:disk_used" json:"disk_used"` //磁盘使用
 }
 
 func (s *SlveBaseInfo) TableName() string {

@@ -54,7 +54,7 @@ Reconnection:
 	//发送心跳的goroutine
 	go func() {
 		//5秒发送一次心跳
-		heartBeatTick := time.Tick(5 * time.Second)
+		heartBeatTick := time.Tick(60 * time.Second)
 		for {
 			select {
 			case <-heartBeatTick:

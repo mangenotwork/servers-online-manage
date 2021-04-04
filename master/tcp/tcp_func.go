@@ -180,6 +180,24 @@ func SendFile2(conn net.Conn, f multipart.File, fileSize int64, filename string)
 	SendData(conn, packet)
 }
 
+//获取Slve PID list
+func GetSlvePIDList(conn net.Conn) {
+	packet := structs.Packet{
+		PacketType:    pk.GET_SLVE_PID_LIST,
+		PacketContent: []byte(""),
+	}
+	SendData(conn, packet)
+}
+
+//获取Slve 环境变量
+func GETSlveENV(conn net.Conn) {
+	packet := structs.Packet{
+		PacketType:    pk.GET_SLVE_ENV,
+		PacketContent: []byte(""),
+	}
+	SendData(conn, packet)
+}
+
 //获取Slve Docker 镜像列表
 func GetDockerImages(conn net.Conn) {
 	active := structs.DockerImagesAction{

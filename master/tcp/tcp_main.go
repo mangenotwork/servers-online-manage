@@ -193,6 +193,21 @@ func MasterTcpFunc(conn *structs.Cli, packet *structs.Packet) {
 		//将数据发送给chan
 		conn.Rdata <- string(callbackPacket.Packet)
 		return
+
+	//接收slave返回的pid list
+	case pk.GET_SLVE_PID_LIST:
+		log.Println("接收slve数据 = ", string(packet.PacketContent))
+		//将数据发送给chan
+		conn.Rdata <- string(packet.PacketContent)
+		return
+
+	//接收slave返回的环境变量
+	case pk.GET_SLVE_ENV:
+		log.Println("接收slve数据 = ", string(packet.PacketContent))
+		//将数据发送给chan
+		conn.Rdata <- string(packet.PacketContent)
+		return
+
 	}
 
 }

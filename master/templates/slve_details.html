@@ -70,6 +70,12 @@
                                   <div id="ecs4" style="width: 100%;height:300px;"></div>
                                 </el-card>
                               </el-col>
+
+                              <el-col :span="12" style="padding: 24px;">
+                                <el-card shadow="hover" style="height: 340px;">
+                                  <div id="ecs5" style="width: 100%;height:300px;"></div>
+                                </el-card>
+                              </el-col>
                         </el-row>
 
                     </el-tab-pane>
@@ -144,8 +150,18 @@
                 console.log(tab, event);
             },
             getData(){
-              }
-
+                let url = "/api/slve/v1/echart/base/5a5f124b094be77c221535fef0963a63";
+                console.log(url);
+                axios.get(url).then(response=> { 
+                    console.log(response) 
+                }) .catch(error=> { 
+                    console.log(error)
+                });
+            }
+        },
+        created: function(){
+            // let t = this;
+            // t.getData();
         },
         mounted:{
 
@@ -154,52 +170,179 @@
     });
 
 
-$.ajax({
-   type:'get',
-   url:'/api/slve/v1/echart/base/b7b82284d142977884440750f0978470',
-    dataType:'json',
-    contentType: "application/json",
-    async:false,
-    success:function (json){
-       console.log(json);
-    },
-   error:function (){
-      //弹错误框
-      console.log("请求失败");
-    }
-});
+// $.ajax({
+//    type:'get',
+//    url:'/api/slve/v1/echart/base/b7b82284d142977884440750f0978470',
+//     dataType:'json',
+//     contentType: "application/json",
+//     async:false,
+//     success:function (json){
+//        console.log(json);
+//     },
+//    error:function (){
+//       //弹错误框
+//       console.log("请求失败");
+//     }
+// });
 
+
+let Chart1 = echarts.init(document.getElementById('ecs1'));
+let Chart2 = echarts.init(document.getElementById('ecs2'));
+let Chart3 = echarts.init(document.getElementById('ecs3'));
+let Chart4 = echarts.init(document.getElementById('ecs4'));
+let Chart5 = echarts.init(document.getElementById('ecs5'));
+
+setInterval(function () {
+console.log("更新图表")
+
+let echart_data_url = "/api/slve/v1/echart/base/5a5f124b094be77c221535fef0963a63";
+console.log(echart_data_url);
+axios.get(echart_data_url).then(response=> { 
+    console.log(response) 
+
+    let showTime = response.data.showTime;
 
     //ecs1 
-    let Chart1 = echarts.init(document.getElementById('ecs1'));
-    let timeData1 = ['00:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00',"22:00"];
-    let showData1 = ['1200', '1400', '1008', '1411', '1026', '1288', '1300', '800', '1100', '1000', '1118', '1322'];
+   
+    let timeData1 = showTime;
+    let showData1 = response.data.cpuShowData;
     let option1 = LineChartData3("CPU使用率",["总使用率"],timeData1,showData1)
     Chart1.setOption(option1);
 
     //ecs2
-    let Chart2 = echarts.init(document.getElementById('ecs2'));
-    let timeData2 = ['00:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00',"22:00"];
-    let showData2 = ['1200', '1400', '1008', '1411', '1026', '1288', '1300', '800', '1100', '1000', '1118', '1322'];
+    
+    let timeData2 = showTime;
+    let showData2 = response.data.memShowData;
     let option2 = LineChartData3("内存使用率",["内存使用率"],timeData2,showData2)
     Chart2.setOption(option2);
 
     //ecs3
-    let Chart3 = echarts.init(document.getElementById('ecs3'));
-    let timeData3=['00:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00',"22:00"];
+    
+    let timeData3=showTime;
     let showData3=['1200', '1400', '1008', '1411', '1026', '1288', '1300', '800', '1100', '1000', '1118', '1322'];
     let option3 = LineChartData3("磁盘使用率",["总使用率"],timeData3,showData3)
     Chart3.setOption(option3);
 
     //ecs4
-    let Chart4 = echarts.init(document.getElementById('ecs4'));
-    let titleStr4="网络IO";
-    let objNameList4=['出网','入网'];
-    let timeData4=['00:00','2:00','4:00','6:00','8:00','10:00','12:00','14:00','16:00','18:00','20:00',"22:00"];
-    let objData1_4=['1200', '1400', '1008', '1411', '1026', '1288', '1300', '800', '1100', '1000', '1118', '1322'];
-    let objData2_4=['1200', '1400', '808', '811', '626', '488', '1600', '1100', '500', '300', '1998', '822'];
-    let option4 = LineChartData2(titleStr4,objNameList4,timeData4,objData1_4,objData2_4)    
-    Chart4.setOption(option4);
+    
+    let titleStr4="网络IO - 输出";
+    let objNameList4=[];
+    let timeData4=showTime;
+    let objDatas = [];
+    for (k in response.data.rxShowData){
+        objNameList4.push(k)
+        objDatas.push({
+            name: k,
+            type: 'line',
+            smooth: true,
+            showSymbol: false,
+            symbol: 'circle',
+            symbolSize: 6,
+            data: response.data.rxShowData[k],
+            areaStyle: {
+                normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(199, 237, 250,0.5)'
+                    }, {
+                        offset: 1,
+                        color: 'rgba(199, 237, 250,0.2)'
+                    }], false)
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#f7b851'
+                }
+            },
+            lineStyle: {
+                normal: {
+                    width: 3
+                }
+            }
+        })
+        }
+        let option4 = LineChartData4(titleStr4,objNameList4,timeData4,objDatas)    
+        Chart4.setOption(option4);
+
+        //ecs5
+        
+        let titleStr5="网络IO - 输入";
+        let objNameList5=[];
+        let timeData5=showTime;
+        let objDatas5 = [];
+        for (k in response.data.txShowData){
+            objNameList5.push(k)
+            objDatas5.push({
+                name: k,
+                type: 'line',
+                smooth: true,
+                showSymbol: false,
+                symbol: 'circle',
+                symbolSize: 6,
+                data: response.data.txShowData[k],
+                areaStyle: {
+                    normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgba(199, 237, 250,0.5)'
+                        }, {
+                            offset: 1,
+                            color: 'rgba(199, 237, 250,0.2)'
+                        }], false)
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        color: '#f7b851'
+                    }
+                },
+                lineStyle: {
+                    normal: {
+                        width: 3
+                    }
+                }
+            })
+
+    }
+    let option5 = LineChartData4(titleStr5,objNameList5,timeData5,objDatas5)    
+    Chart5.setOption(option5);
+
+}) .catch(error=> { 
+    console.log(error)
+});
+
+
+}, 10000)
+
+
+// // 使用刚指定的配置项和数据显示图表。
+// myChart.setOption(option);
+// setInterval(function () {
+//     console.log("time_list_data = ",time_list_data)
+//     addData();
+//     myChart.setOption({
+//       xAxis: {
+//           data: time_list_data
+//         },
+//       series: [{
+//           name:'Used Memory',
+//           data: used_memory_data
+//         },{
+//           name:'Used Memory Rss',
+//           data: used_memory_rss_data
+//         },
+//         {
+//           name:'Used Memory Lua',
+//           data: used_memory_lua_data
+//         },
+//         {
+//           name:'Used Memory Peak',
+//           data: used_memory_peak_data
+//         }
+//         ]});
+// }, 10000);
+    
 
 </script>
 

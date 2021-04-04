@@ -40,4 +40,10 @@ const (
 
 	//请求docker container相关
 	Docker_Container = 0x11
+
+	//获取slve pid list
+	GET_SLVE_PID_LIST = 0x12
+
+	//获取slve 环境变量(env)
+	GET_SLVE_ENV = 0x13
 )

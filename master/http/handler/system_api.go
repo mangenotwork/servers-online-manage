@@ -181,3 +181,41 @@ func GetEchartBaseData(c *gin.Context) {
 		"rxShowData":  rxShowData,
 	})
 }
+
+//GetPIDList  获取Slve 进程列表
+func GetPIDList(c *gin.Context) {
+	slve := c.Param("slveId")
+	slveConn := global.Slves[slve]
+	if slveConn == nil {
+		c.JSON(200, gin.H{
+			"data": fmt.Sprintf("%s 连接丢失", slve),
+		})
+		return
+	}
+
+	tcp.GetSlvePIDList(slveConn.Conn)
+	data := <-slveConn.Rdata
+	c.JSON(200, gin.H{
+		"data": data,
+	})
+	return
+}
+
+//GetENVList 获取Slve 环境变量
+func GetENVList(c *gin.Context) {
+	slve := c.Param("slveId")
+	slveConn := global.Slves[slve]
+	if slveConn == nil {
+		c.JSON(200, gin.H{
+			"data": fmt.Sprintf("%s 连接丢失", slve),
+		})
+		return
+	}
+
+	tcp.GETSlveENV(slveConn.Conn)
+	data := <-slveConn.Rdata
+	c.JSON(200, gin.H{
+		"data": data,
+	})
+	return
+}
